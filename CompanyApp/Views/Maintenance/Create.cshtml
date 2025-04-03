@@ -1,0 +1,206 @@
+﻿@model CompanyApp.Application.DTOs.CreateMaintenanceRecordDto
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0 rounded-3">
+                <div class="card-body">
+                    <h2 class="card-title mb-4" style="color: #158e3a;">Создание записи о техническом обслуживании</h2>
+
+                    @if (ViewBag.ItemType != "None")
+                    {
+                        <div class="alert alert-info mb-4">
+                            <i class="bi bi-info-circle me-2"></i>
+                            Создание записи о техническом обслуживании для: <strong>@ViewBag.ItemName</strong>
+                        </div>
+                    }
+
+                    <form asp-action="Create" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                        @if (ViewBag.ItemType == "Computer")
+                        {
+                            <input type="hidden" asp-for="ComputerId" />
+                        }
+                        else if (ViewBag.ItemType == "Equipment")
+                        {
+                            <input type="hidden" asp-for="EquipmentId" />
+                        }
+                        else
+                        {
+                            <div class="row mb-3">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label class="form-label">Выберите оборудование</label>
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="radio" name="equipmentType" id="computerRadio" value="computer" checked>
+                                            <label class="form-check-label" for="computerRadio">
+                                                Компьютер
+                                            </label>
+                                        </div>
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="radio" name="equipmentType" id="otherEquipmentRadio" value="equipment">
+                                            <label class="form-check-label" for="otherEquipmentRadio">
+                                                Орг. техника
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3" id="computerSelectContainer">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label asp-for="ComputerId" class="form-label">Выберите компьютер</label>
+                                        <select asp-for="ComputerId" class="form-select" asp-items="ViewBag.Computers">
+                                            <option value="">Выберите компьютер</option>
+                                        </select>
+                                        <span asp-validation-for="ComputerId" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3" id="equipmentSelectContainer" style="display: none;">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label asp-for="EquipmentId" class="form-label">Выберите орг. технику</label>
+                                        <select asp-for="EquipmentId" class="form-select" asp-items="ViewBag.Equipments">
+                                            <option value="">Выберите орг. технику</option>
+                                        </select>
+                                        <span asp-validation-for="EquipmentId" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="MaintenanceDate" class="form-label">Дата обслуживания</label>
+                                    <input asp-for="MaintenanceDate" type="date" class="form-control" />
+                                    <span asp-validation-for="MaintenanceDate" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="NextMaintenanceDate" class="form-label">Дата следующего ТО</label>
+                                    <input asp-for="NextMaintenanceDate" type="date" class="form-control" />
+                                    <span asp-validation-for="NextMaintenanceDate" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="MaintenanceType" class="form-label">Тип обслуживания</label>
+                                    <select asp-for="MaintenanceType" class="form-select">
+                                        <option value="Planned">Плановое</option>
+                                        <option value="Emergency">Экстренное</option>
+                                        <option value="Warranty">Гарантийное</option>
+                                    </select>
+                                    <span asp-validation-for="MaintenanceType" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="Status" class="form-label">Статус</label>
+                                    <select asp-for="Status" class="form-select">
+                                        <option value="Pending">Ожидает</option>
+                                        <option value="Completed">Завершено</option>
+                                        <option value="Cancelled">Отменено</option>
+                                    </select>
+                                    <span asp-validation-for="Status" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="TechnicianName" class="form-label">Имя специалиста</label>
+                                    <input asp-for="TechnicianName" class="form-control" placeholder="Введите имя специалиста" />
+                                    <span asp-validation-for="TechnicianName" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="Cost" class="form-label">Стоимость</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">₽</span>
+                                        <input asp-for="Cost" type="number" step="0.01" min="0" class="form-control" placeholder="0.00" />
+                                    </div>
+                                    <span asp-validation-for="Cost" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="Description" class="form-label">Описание</label>
+                            <textarea asp-for="Description" class="form-control" rows="3" placeholder="Опишите выполненные работы"></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="Notes" class="form-label">Примечания</label>
+                            <textarea asp-for="Notes" class="form-control" rows="2" placeholder="Дополнительная информация"></textarea>
+                            <span asp-validation-for="Notes" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-plus-circle"></i> Создать
+                            </button>
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Отмена
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Элементы формы
+            const computerRadio = document.getElementById('computerRadio');
+            const equipmentRadio = document.getElementById('otherEquipmentRadio');
+            const computerSelectContainer = document.getElementById('computerSelectContainer');
+            const equipmentSelectContainer = document.getElementById('equipmentSelectContainer');
+            const computerIdSelect = document.getElementById('ComputerId');
+            const equipmentIdSelect = document.getElementById('EquipmentId');
+
+            // Если радио-кнопки доступны (когда создаем ТО без указания конкретного оборудования)
+            if (computerRadio && equipmentRadio) {
+                computerRadio.addEventListener('change', function() {
+                    if (this.checked) {
+                        computerSelectContainer.style.display = 'block';
+                        equipmentSelectContainer.style.display = 'none';
+                        equipmentIdSelect.value = '';
+                    }
+                });
+
+                equipmentRadio.addEventListener('change', function() {
+                    if (this.checked) {
+                        computerSelectContainer.style.display = 'none';
+                        equipmentSelectContainer.style.display = 'block';
+                        computerIdSelect.value = '';
+                    }
+                });
+            }
+
+            // Устанавливаем текущую дату по умолчанию
+            const today = new Date().toISOString().slice(0, 10);
+            document.getElementById('MaintenanceDate').value = today;
+
+            // Устанавливаем следующую дату ТО через 3 месяца (90 дней) по умолчанию
+            const nextMaintenanceDate = new Date();
+            nextMaintenanceDate.setDate(nextMaintenanceDate.getDate() + 90);
+            document.getElementById('NextMaintenanceDate').value = nextMaintenanceDate.toISOString().slice(0, 10);
+        });
+    </script>
+}

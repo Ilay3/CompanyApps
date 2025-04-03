@@ -1,0 +1,396 @@
+﻿@model CompanyApp.Application.DTOs.MaintenanceSummaryDto
+
+<style>
+    .dashboard-card {
+        transition: all 0.3s ease-in-out;
+        border-radius: 10px;
+        border: none;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .dashboard-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-card {
+        color: white;
+        min-height: 120px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .stat-card i {
+        font-size: 2rem;
+        margin-bottom: 10px;
+    }
+
+    .stat-card .stat-value {
+        font-size: 2rem;
+        font-weight: bold;
+    }
+
+    .stat-card .stat-label {
+        font-size: 1rem;
+        opacity: 0.8;
+    }
+
+    .bg-primary-gradient {
+        background: linear-gradient(135deg, #0d6efd, #0b5ed7);
+    }
+
+    .bg-success-gradient {
+        background: linear-gradient(135deg, #158e3a, #0f682b);
+    }
+
+    .bg-warning-gradient {
+        background: linear-gradient(135deg, #ffc107, #e0a800);
+    }
+
+    .bg-danger-gradient {
+        background: linear-gradient(135deg, #dc3545, #bd2130);
+    }
+</style>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-12">
+            <div class="card shadow-sm border-0 rounded-3">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="card-title" style="color: #158e3a;">Дашборд технического обслуживания</h2>
+                        <div>
+                            <a asp-action="Create" class="btn btn-success">
+                                <i class="bi bi-plus-circle"></i> Новая запись
+                            </a>
+                            <a asp-action="Index" class="btn btn-primary">
+                                <i class="bi bi-list-check"></i> Список всех записей
+                            </a>
+                            <a asp-action="Index" asp-controller="Dashboard" class="btn btn-secondary">
+                                <i class="bi bi-house-door"></i> На главную
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Статистические карточки -->
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="card dashboard-card stat-card bg-primary-gradient">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-tools"></i>
+                                    <div class="stat-value">@Model.TotalRecords</div>
+                                    <div class="stat-label">Всего записей</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card dashboard-card stat-card bg-warning-gradient">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-hourglass-split"></i>
+                                    <div class="stat-value">@Model.PendingRecords</div>
+                                    <div class="stat-label">Ожидает</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card dashboard-card stat-card bg-success-gradient">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-check-circle"></i>
+                                    <div class="stat-value">@Model.CompletedRecords</div>
+                                    <div class="stat-label">Завершено</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card dashboard-card stat-card bg-danger-gradient">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-x-circle"></i>
+                                    <div class="stat-value">@Model.CancelledRecords</div>
+                                    <div class="stat-label">Отменено</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <!-- Предстоящее ТО -->
+                        <div class="col-md-8">
+                            <div class="card dashboard-card h-100">
+                                <div class="card-header bg-light">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h5 class="mb-0">
+                                            <i class="bi bi-calendar-check me-2"></i>Предстоящее техническое обслуживание
+                                        </h5>
+                                        <a asp-action="Upcoming" class="btn btn-sm btn-outline-primary">
+                                            Смотреть все
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    @if (Model.UpcomingMaintenance.Any())
+                                    {
+                                        <div class="table-responsive">
+                                            <table class="table table-hover">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Дата</th>
+                                                        <th>Тип</th>
+                                                        <th>Оборудование</th>
+                                                        <th>Статус</th>
+                                                        <th>Действия</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach (var maintenance in Model.UpcomingMaintenance)
+                                                    {
+                                                        var daysLeft = maintenance.NextMaintenanceDate.HasValue ?
+                                                        (maintenance.NextMaintenanceDate.Value - DateTime.Now).Days : 0;
+
+                                                        var statusClass = daysLeft <= 0 ? "text-danger fw-bold" :
+                                                        daysLeft <= 7 ? "text-warning fw-bold" :
+                                                        "text-dark";
+
+                                                        <tr class="@statusClass">
+                                                            <td>
+                                                                @maintenance.NextMaintenanceDate?.ToString("dd.MM.yyyy")
+                                                                @if (daysLeft <= 0)
+                                                                {
+                                                                    <span class="badge bg-danger ms-2">Просрочено</span>
+                                                                }
+                                                                else if (daysLeft <= 7)
+                                                                {
+                                                                    <span class="badge bg-warning ms-2">Скоро</span>
+                                                                }
+                                                            </td>
+                                                            <td>
+                                                                @(maintenance.MaintenanceType == "Planned" ? "Плановое" :
+                                                                    maintenance.MaintenanceType == "Emergency" ? "Экстренное" :
+                                                                    maintenance.MaintenanceType == "Warranty" ? "Гарантийное" :
+                                                                    maintenance.MaintenanceType)
+                                                            </td>
+                                                            <td>
+                                                                @if (maintenance.Computer != null)
+                                                                {
+                                                                    <span>Компьютер: @maintenance.Computer.Model</span>
+                                                                }
+                                                                else if (maintenance.Equipment != null)
+                                                                {
+                                                                    <span>@maintenance.Equipment.Type: @maintenance.Equipment.Model</span>
+                                                                }
+                                                            </td>
+                                                            <td>
+                                                                @if (maintenance.Status == "Pending")
+                                                                {
+                                                                    <span class="badge bg-warning">Ожидает</span>
+                                                                }
+                                                                else if (maintenance.Status == "Completed")
+                                                                {
+                                                                    <span class="badge bg-success">Завершено</span>
+                                                                }
+                                                                else if (maintenance.Status == "Cancelled")
+                                                                {
+                                                                    <span class="badge bg-danger">Отменено</span>
+                                                                }
+                                                            </td>
+                                                            <td>
+                                                                <a asp-action="Details" asp-route-id="@maintenance.Id" class="btn btn-sm btn-outline-primary">
+                                                                    <i class="bi bi-eye"></i>
+                                                                </a>
+                                                            </td>
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="alert alert-info">
+                                            <i class="bi bi-info-circle"></i> Нет предстоящего технического обслуживания.
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Аналитика затрат -->
+                        <div class="col-md-4">
+                            <div class="card dashboard-card h-100">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">
+                                        <i class="bi bi-cash-coin me-2"></i>Затраты на обслуживание
+                                    </h5>
+                                </div>
+                                <div class="card-body text-center">
+                                    <div class="mb-4">
+                                        <span class="display-4 fw-bold">@Model.TotalCost.ToString("C")</span>
+                                        <p class="text-muted">Общие затраты на обслуживание</p>
+                                    </div>
+
+                                    <div class="mt-4">
+                                        <canvas id="maintenanceTypeChart" height="200"></canvas>
+                                    </div>
+
+                                    <div class="mt-4">
+                                        <p class="text-muted">
+                                            Распределение затрат по типам обслуживания
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Распределение по статусам -->
+                    <div class="row mt-4">
+                        <div class="col-md-12">
+                            <div class="card dashboard-card">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">
+                                        <i class="bi bi-pie-chart-fill me-2"></i>Распределение по статусам
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <canvas id="statusChart" height="200"></canvas>
+                                        </div>
+                                        <div class="col-md-8">
+                                            <div class="progress mb-3" style="height: 20px;">
+                                                @{
+                                                    var pendingPercentage = Model.TotalRecords > 0 ?
+                                                    (Model.PendingRecords * 100) / Model.TotalRecords : 0;
+                                                    var completedPercentage = Model.TotalRecords > 0 ?
+                                                    (Model.CompletedRecords * 100) / Model.TotalRecords : 0;
+                                                    var cancelledPercentage = Model.TotalRecords > 0 ?
+                                                    (Model.CancelledRecords * 100) / Model.TotalRecords : 0;
+                                                }
+                                                <div class="progress-bar bg-warning" role="progressbar"
+                                                     style="width: @pendingPercentage%;"
+                                                     aria-valuenow="@pendingPercentage" aria-valuemin="0" aria-valuemax="100">
+                                                    @if (pendingPercentage > 5)
+                                                    {
+                                                        <span>Ожидает: @pendingPercentage%</span>
+                                                    }
+                                                </div>
+                                                <div class="progress-bar bg-success" role="progressbar"
+                                                     style="width: @completedPercentage%;"
+                                                     aria-valuenow="@completedPercentage" aria-valuemin="0" aria-valuemax="100">
+                                                    @if (completedPercentage > 5)
+                                                    {
+                                                        <span>Завершено: @completedPercentage%</span>
+                                                    }
+                                                </div>
+                                                <div class="progress-bar bg-danger" role="progressbar"
+                                                     style="width: @cancelledPercentage%;"
+                                                     aria-valuenow="@cancelledPercentage" aria-valuemin="0" aria-valuemax="100">
+                                                    @if (cancelledPercentage > 5)
+                                                    {
+                                                        <span>Отменено: @cancelledPercentage%</span>
+                                                    }
+                                                </div>
+                                            </div>
+
+                                            <div class="row mt-4">
+                                                <div class="col-md-4">
+                                                    <div class="card bg-light">
+                                                        <div class="card-body text-center">
+                                                            <h6 class="card-title text-warning">Ожидает</h6>
+                                                            <p class="card-text">@Model.PendingRecords из @Model.TotalRecords</p>
+                                                            <p class="card-text">(@pendingPercentage%)</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="card bg-light">
+                                                        <div class="card-body text-center">
+                                                            <h6 class="card-title text-success">Завершено</h6>
+                                                            <p class="card-text">@Model.CompletedRecords из @Model.TotalRecords</p>
+                                                            <p class="card-text">(@completedPercentage%)</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="card bg-light">
+                                                        <div class="card-body text-center">
+                                                            <h6 class="card-title text-danger">Отменено</h6>
+                                                            <p class="card-text">@Model.CancelledRecords из @Model.TotalRecords</p>
+                                                            <p class="card-text">(@cancelledPercentage%)</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Данные для графика статусов
+            const statusCtx = document.getElementById('statusChart').getContext('2d');
+            new Chart(statusCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Ожидает', 'Завершено', 'Отменено'],
+                    datasets: [{
+                        data: [@Model.PendingRecords, @Model.CompletedRecords, @Model.CancelledRecords],
+                        backgroundColor: ['#ffc107', '#158e3a', '#dc3545'],
+                        hoverBackgroundColor: ['#e0a800', '#0f682b', '#bd2130'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '70%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+
+            // Данные для графика типов обслуживания
+            // В реальном приложении эти данные должны быть получены от сервера
+            const typeCtx = document.getElementById('maintenanceTypeChart').getContext('2d');
+            new Chart(typeCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Плановое', 'Экстренное', 'Гарантийное'],
+                    datasets: [{
+                        label: 'Затраты (₽)',
+                        data: [5000, 3000, 2000], // Заглушка
+                        backgroundColor: ['#0d6efd', '#dc3545', '#6f42c1'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+}

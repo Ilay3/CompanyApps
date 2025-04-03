@@ -1,0 +1,243 @@
+﻿@model CompanyApp.Application.DTOs.MaintenanceRecordDto
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0 rounded-3">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="card-title" style="color: #158e3a;">Детали технического обслуживания</h2>
+                        <div>
+                            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary">
+                                <i class="bi bi-pencil"></i> Редактировать
+                            </a>
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left-circle"></i> Назад
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card bg-light mb-4">
+                                <div class="card-body">
+                                    <h5 class="card-title">Основная информация</h5>
+                                    <table class="table table-borderless mb-0">
+                                        <tbody>
+                                            <tr>
+                                                <th style="width: 40%;">Дата обслуживания:</th>
+                                                <td>@Model.MaintenanceDate.ToString("dd.MM.yyyy")</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Тип обслуживания:</th>
+                                                <td>
+                                                    @{
+                                                        var typeClass = Model.MaintenanceType == "Emergency" ? "text-danger" :
+                                                        Model.MaintenanceType == "Warranty" ? "text-primary" :
+                                                        "text-success";
+
+                                                        var typeName = Model.MaintenanceType == "Planned" ? "Плановое" :
+                                                        Model.MaintenanceType == "Emergency" ? "Экстренное" :
+                                                        Model.MaintenanceType == "Warranty" ? "Гарантийное" :
+                                                        Model.MaintenanceType;
+                                                    }
+                                                    <span class="@typeClass">@typeName</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th>Статус:</th>
+                                                <td>
+                                                    @{
+                                                        var statusClass = Model.Status == "Completed" ? "bg-success" :
+                                                        Model.Status == "Cancelled" ? "bg-danger" :
+                                                        "bg-warning";
+
+                                                        var statusName = Model.Status == "Pending" ? "Ожидает" :
+                                                        Model.Status == "Completed" ? "Завершено" :
+                                                        Model.Status == "Cancelled" ? "Отменено" :
+                                                        Model.Status;
+                                                    }
+                                                    <span class="badge @statusClass">@statusName</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th>Следующее ТО:</th>
+                                                <td>
+                                                    @if (Model.NextMaintenanceDate.HasValue)
+                                                    {
+                                                        var daysLeft = (Model.NextMaintenanceDate.Value - DateTime.Now).Days;
+                                                        var nextClass = daysLeft <= 0 ? "text-danger" :
+                                                        daysLeft <= 7 ? "text-warning" :
+                                                        "text-dark";
+
+                                                        <span class="@nextClass">
+                                                            @Model.NextMaintenanceDate.Value.ToString("dd.MM.yyyy")
+                                                            @if (daysLeft <= 0)
+                                                            {
+                                                                <span class="badge bg-danger ms-2">Просрочено</span>
+                                                            }
+                                                            else if (daysLeft <= 7)
+                                                            {
+                                                                <span class="badge bg-warning ms-2">Скоро</span>
+                                                            }
+                                                        </span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted">Не указано</span>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h5 class="card-title">Оборудование</h5>
+                                    <table class="table table-borderless mb-0">
+                                        <tbody>
+                                            <tr>
+                                                <th style="width: 40%;">Тип:</th>
+                                                <td>
+                                                    @if (Model.Computer != null)
+                                                    {
+                                                        <span>Компьютер</span>
+                                                    }
+                                                    else if (Model.Equipment != null)
+                                                    {
+                                                        <span>@Model.Equipment.Type</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted">Не указано</span>
+                                                    }
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th>Модель:</th>
+                                                <td>
+                                                    @if (Model.Computer != null)
+                                                    {
+                                                        <a asp-controller="Computer" asp-action="Details" asp-route-id="@Model.ComputerId">
+                                                            @Model.Computer.Model
+                                                        </a>
+                                                    }
+                                                    else if (Model.Equipment != null)
+                                                    {
+                                                        <a asp-controller="Equipment" asp-action="Details" asp-route-id="@Model.EquipmentId">
+                                                            @Model.Equipment.Model
+                                                        </a>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted">Не указано</span>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="card bg-light mb-4">
+                                <div class="card-body">
+                                    <h5 class="card-title">Финансовая информация</h5>
+                                    <table class="table table-borderless mb-0">
+                                        <tbody>
+                                            <tr>
+                                                <th style="width: 40%;">Стоимость:</th>
+                                                <td>
+                                                    @if (Model.Cost.HasValue)
+                                                    {
+                                                        @Model.Cost.Value.ToString("C")
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted">Не указана</span>
+                                                    }
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th>Специалист:</th>
+                                                <td>
+                                                    @if (!string.IsNullOrEmpty(Model.TechnicianName))
+                                                    {
+                                                        @Model.TechnicianName
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted">Не указан</span>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h5 class="card-title">Документация</h5>
+                                    @if (!string.IsNullOrEmpty(Model.AttachmentPath))
+                                    {
+                                        <p>
+                                            <a href="@Model.AttachmentPath" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                <i class="bi bi-file-earmark-text"></i> Документ
+                                            </a>
+                                        </p>
+                                    }
+                                    else
+                                    {
+                                        <p class="text-muted">Нет прикрепленных документов</p>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card bg-light mt-4">
+                        <div class="card-body">
+                            <h5 class="card-title">Описание</h5>
+                            <p>@Model.Description</p>
+
+                            @if (!string.IsNullOrEmpty(Model.Notes))
+                            {
+                                <h5 class="card-title mt-4">Примечания</h5>
+                                <p>@Model.Notes</p>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                        @if (Model.Status != "Completed" && Model.Status != "Cancelled")
+                        {
+                            <form asp-action="UpdateStatus" method="post" class="me-2">
+                                <input type="hidden" name="id" value="@Model.Id" />
+                                <input type="hidden" name="status" value="Completed" />
+                                <button type="submit" class="btn btn-success">
+                                    <i class="bi bi-check-circle"></i> Пометить как завершенное
+                                </button>
+                            </form>
+
+                            <form asp-action="UpdateStatus" method="post">
+                                <input type="hidden" name="id" value="@Model.Id" />
+                                <input type="hidden" name="status" value="Cancelled" />
+                                <button type="submit" class="btn btn-danger">
+                                    <i class="bi bi-x-circle"></i> Отменить
+                                </button>
+                            </form>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+}

@@ -1,0 +1,164 @@
+﻿@model CompanyApp.Application.DTOs.SoftwareLicenseDto
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0 rounded-3">
+                <div class="card-body">
+                    <h2 class="card-title mb-4" style="color: #158e3a;">Продление лицензии</h2>
+
+                    <div class="alert alert-info mb-4">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-info-circle-fill me-3 fs-3"></i>
+                            <div>
+                                <h5 class="alert-heading">@Model.Name @Model.Version</h5>
+                                @if (Model.ExpirationDate.HasValue)
+                                {
+                                    var daysLeft = (Model.ExpirationDate.Value - DateTime.Now).Days;
+                                    var statusText = daysLeft <= 0 ? "Лицензия истекла" :
+                                    $"Действует до {Model.ExpirationDate.Value.ToString("dd.MM.yyyy")} (осталось {daysLeft} дн.)";
+                                    var statusClass = daysLeft <= 0 ? "text-danger" :
+                                    daysLeft <= 30 ? "text-warning" :
+                                    "text-success";
+
+                                    <p class="mb-0 @statusClass">@statusText</p>
+                                }
+                                else
+                                {
+                                    <p class="mb-0 text-success">Бессрочная лицензия</p>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <form asp-action="Renew" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <input type="hidden" asp-for="Id" />
+                        <input type="hidden" asp-for="Name" />
+                        <input type="hidden" asp-for="Version" />
+                        <input type="hidden" asp-for="LicenseType" />
+                        <input type="hidden" asp-for="Seats" />
+                        <input type="hidden" asp-for="SeatsUsed" />
+
+                        <!-- Предыдущая дата окончания -->
+                        <div class="form-group mb-3">
+                            <label class="form-label">Текущий срок действия</label>
+                            <input type="text" class="form-control"
+                                   value="@(Model.ExpirationDate?.ToString("dd.MM.yyyy") ?? "Бессрочно")"
+                                   readonly />
+                        </div>
+
+                        <!-- Новый лицензионный ключ -->
+                        <div class="form-group mb-3">
+                            <label asp-for="LicenseKey" class="form-label">Новый лицензионный ключ</label>
+                            <input asp-for="LicenseKey" class="form-control" placeholder="Введите новый лицензионный ключ" />
+                            <span asp-validation-for="LicenseKey" class="text-danger"></span>
+                        </div>
+
+                        <!-- Дата покупки -->
+                        <div class="form-group mb-3">
+                            <label asp-for="PurchaseDate" class="form-label">Дата покупки продления</label>
+                            <input asp-for="PurchaseDate" type="date" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                            <span asp-validation-for="PurchaseDate" class="text-danger"></span>
+                        </div>
+
+                        <!-- Новая дата окончания -->
+                        <div class="form-group mb-3">
+                            <label asp-for="ExpirationDate" class="form-label">Новый срок действия</label>
+                            <input asp-for="ExpirationDate" type="date" class="form-control"
+                                   value="@(Model.ExpirationDate.HasValue ? (Model.ExpirationDate.Value < DateTime.Now ? DateTime.Now.AddYears(1) : Model.ExpirationDate.Value.AddYears(1)).ToString("yyyy-MM-dd") : "")" />
+                            <span asp-validation-for="ExpirationDate" class="text-danger"></span>
+                            <small class="form-text text-muted">Оставьте пустым для бессрочной лицензии.</small>
+                        </div>
+
+                        <!-- Стоимость продления -->
+                        <div class="form-group mb-3">
+                            <label asp-for="Cost" class="form-label">Стоимость продления</label>
+                            <div class="input-group">
+                                <span class="input-group-text">₽</span>
+                                <input asp-for="Cost" type="number" step="0.01" min="0" class="form-control" />
+                            </div>
+                            <span asp-validation-for="Cost" class="text-danger"></span>
+                        </div>
+
+                        <!-- Примечания -->
+                        <div class="form-group mb-3">
+                            <label asp-for="Notes" class="form-label">Примечания</label>
+                            <textarea asp-for="Notes" class="form-control" rows="3"
+                                      placeholder="Дополнительная информация о продлении"></textarea>
+                            <span asp-validation-for="Notes" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-arrow-clockwise"></i> Продлить лицензию
+                            </button>
+                            <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Отмена
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Автоматический расчет даты истечения срока при изменении типа лицензии
+            var licenseTypeSelect = document.getElementById('LicenseType');
+            var expirationDateInput = document.getElementById('ExpirationDate');
+            var purchaseDateInput = document.getElementById('PurchaseDate');
+
+            if (licenseTypeSelect && expirationDateInput && purchaseDateInput) {
+                licenseTypeSelect.addEventListener('change', function() {
+                    var selectedType = this.value;
+                    var purchaseDate = new Date(purchaseDateInput.value);
+
+                    if (selectedType === 'Perpetual') {
+                        // Для бессрочной лицензии очищаем дату
+                        expirationDateInput.value = '';
+                    } else if (selectedType === 'Subscription') {
+                        // Для подписки устанавливаем + 1 год
+                        var expirationDate = new Date(purchaseDate);
+                        expirationDate.setFullYear(expirationDate.getFullYear() + 1);
+                        expirationDateInput.value = expirationDate.toISOString().split('T')[0];
+                    } else if (selectedType === 'Trial') {
+                        // Для пробной версии устанавливаем + 30 дней
+                        var expirationDate = new Date(purchaseDate);
+                        expirationDate.setDate(expirationDate.getDate() + 30);
+                        expirationDateInput.value = expirationDate.toISOString().split('T')[0];
+                    }
+                });
+
+                // Обновление минимальной даты для срока действия
+                purchaseDateInput.addEventListener('change', function() {
+                    if (expirationDateInput.value) {
+                        var purchaseDate = new Date(this.value);
+                        var expirationDate = new Date(expirationDateInput.value);
+
+                        if (expirationDate < purchaseDate) {
+                            // Для испрвления, если дата истечения срока ранеее даты покупки
+                            if (licenseTypeSelect.value === 'Subscription') {
+                                var newExpirationDate = new Date(purchaseDate);
+                                newExpirationDate.setFullYear(newExpirationDate.getFullYear() + 1);
+                                expirationDateInput.value = newExpirationDate.toISOString().split('T')[0];
+                            } else if (licenseTypeSelect.value === 'Trial') {
+                                var newExpirationDate = new Date(purchaseDate);
+                                newExpirationDate.setDate(newExpirationDate.getDate() + 30);
+                                expirationDateInput.value = newExpirationDate.toISOString().split('T')[0];
+                            } else {
+                                expirationDateInput.value = '';
+                            }
+                        }
+                    }
+
+                    expirationDateInput.min = this.value;
+                });
+            }
+        });
+    </script>
+}

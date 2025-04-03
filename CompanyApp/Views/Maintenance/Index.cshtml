@@ -1,0 +1,212 @@
+﻿@model IEnumerable<CompanyApp.Application.DTOs.MaintenanceRecordDto>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-12">
+            <div class="card shadow-sm border-0 rounded-3">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="card-title" style="color: #158e3a;">Техническое обслуживание</h2>
+                        <div>
+                            <a asp-action="Create" class="btn btn-success">
+                                <i class="bi bi-plus-circle"></i> Новая запись
+                            </a>
+                            <a asp-action="Dashboard" class="btn btn-primary">
+                                <i class="bi bi-speedometer2"></i> Дашборд
+                            </a>
+                            <a asp-action="Upcoming" class="btn btn-warning">
+                                <i class="bi bi-calendar-check"></i> Предстоящее ТО
+                            </a>
+                            <a asp-action="Index" asp-controller="Dashboard" class="btn btn-secondary">
+                                <i class="bi bi-house-door"></i> На главную
+                            </a>
+                        </div>
+                    </div>
+
+                    @if (!Model.Any())
+                    {
+                        <div class="alert alert-info mt-3">
+                            <i class="bi bi-info-circle"></i> Записи о техническом обслуживании не найдены. Создайте новую запись, нажав на кнопку выше.
+                        </div>
+                    }
+                    else
+                    {
+                        <!-- Фильтр -->
+                        <div class="card bg-light mb-4">
+                            <div class="card-body">
+                                <h5 class="card-title mb-3">Фильтры</h5>
+                                <form method="get" class="row g-3">
+                                    <div class="col-md-3">
+                                        <label for="status" class="form-label">Статус</label>
+                                        <select id="status" name="status" class="form-select">
+                                            <option value="">Все</option>
+                                            <option value="Pending">Ожидает</option>
+                                            <option value="Completed">Завершено</option>
+                                            <option value="Cancelled">Отменено</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="type" class="form-label">Тип</label>
+                                        <select id="type" name="type" class="form-select">
+                                            <option value="">Все</option>
+                                            <option value="Planned">Плановое</option>
+                                            <option value="Emergency">Экстренное</option>
+                                            <option value="Warranty">Гарантийное</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="dateFrom" class="form-label">Дата с</label>
+                                        <input type="date" id="dateFrom" name="dateFrom" class="form-control" />
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="dateTo" class="form-label">Дата по</label>
+                                        <input type="date" id="dateTo" name="dateTo" class="form-control" />
+                                    </div>
+                                    <div class="col-12 text-end">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="bi bi-filter"></i> Применить
+                                        </button>
+                                        <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                                            <i class="bi bi-x-circle"></i> Сбросить
+                                        </a>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Дата</th>
+                                        <th>Тип</th>
+                                        <th>Оборудование</th>
+                                        <th>Описание</th>
+                                        <th>Статус</th>
+                                        <th>Следующее ТО</th>
+                                        <th>Действия</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model)
+                                    {
+                                        var statusClass = item.Status == "Completed" ? "bg-success" :
+                                        item.Status == "Cancelled" ? "bg-danger" :
+                                        "bg-warning";
+
+                                        var typeClass = item.MaintenanceType == "Emergency" ? "text-danger" :
+                                        item.MaintenanceType == "Warranty" ? "text-primary" :
+                                        "text-success";
+
+                                        var nextMaintenanceClass = "";
+                                        if (item.NextMaintenanceDate.HasValue)
+                                        {
+                                            var daysLeft = (item.NextMaintenanceDate.Value - DateTime.Now).Days;
+                                            nextMaintenanceClass = daysLeft <= 0 ? "text-danger fw-bold" :
+                                            daysLeft <= 7 ? "text-warning fw-bold" :
+                                            "text-muted";
+                                        }
+
+                                        <tr>
+                                            <td>@item.MaintenanceDate.ToString("dd.MM.yyyy")</td>
+                                            <td>
+                                                <span class="@typeClass">
+                                                    @(item.MaintenanceType == "Planned" ? "Плановое" :
+                                                        item.MaintenanceType == "Emergency" ? "Экстренное" :
+                                                        item.MaintenanceType == "Warranty" ? "Гарантийное" :
+                                                        item.MaintenanceType)
+                                                </span>
+                                            </td>
+                                            <td>
+                                                @if (item.Computer != null)
+                                                {
+                                                    <a asp-controller="Computer" asp-action="Details" asp-route-id="@item.ComputerId">
+                                                        <i class="bi bi-pc-display"></i> @item.Computer.Model
+                                                    </a>
+                                                }
+                                                else if (item.Equipment != null)
+                                                {
+                                                    <a asp-controller="Equipment" asp-action="Details" asp-route-id="@item.EquipmentId">
+                                                        <i class="bi bi-printer"></i> @item.Equipment.Type @item.Equipment.Model
+                                                    </a>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">Не указано</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @(item.Description.Length > 50 ? item.Description.Substring(0, 47) + "..." : item.Description)
+                                            </td>
+                                            <td>
+                                                <span class="badge @statusClass">
+                                                    @(item.Status == "Pending" ? "Ожидает" :
+                                                        item.Status == "Completed" ? "Завершено" :
+                                                        item.Status == "Cancelled" ? "Отменено" :
+                                                        item.Status)
+                                                </span>
+                                            </td>
+                                            <td class="@nextMaintenanceClass">
+                                                @if (item.NextMaintenanceDate.HasValue)
+                                                {
+                                                    @item.NextMaintenanceDate.Value.ToString("dd.MM.yyyy")
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">Не указано</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">
+                                                        <i class="bi bi-info-circle"></i>
+                                                    </a>
+                                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </a>
+                                                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger">
+                                                        <i class="bi bi-trash"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+    <script>
+        // Устанавливаем значения фильтров из QueryString
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+
+            const statusParam = urlParams.get('status');
+            if (statusParam) {
+                document.getElementById('status').value = statusParam;
+            }
+
+            const typeParam = urlParams.get('type');
+            if (typeParam) {
+                document.getElementById('type').value = typeParam;
+            }
+
+            const dateFromParam = urlParams.get('dateFrom');
+            if (dateFromParam) {
+                document.getElementById('dateFrom').value = dateFromParam;
+            }
+
+            const dateToParam = urlParams.get('dateTo');
+            if (dateToParam) {
+                document.getElementById('dateTo').value = dateToParam;
+            }
+        });
+    </script>
+}

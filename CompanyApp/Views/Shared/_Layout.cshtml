@@ -15,8 +15,7 @@
     <style>
         /* Стили для выделения выбранного элемента */
         .nav-link.active {
-            
-            border-bottom: 2px solid green;
+            border-bottom: 2px solid #158e3a;
             color: black !important;
         }
 
@@ -27,6 +26,7 @@
 
         .navbar {
             padding: 10px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
 
         .nav-item {
@@ -50,37 +50,141 @@
             font-size: 14px;
             color: #6c757d;
         }
+
+        /* Стиль выпадающего меню */
+        .dropdown-menu {
+            border: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 0.5rem;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
+            color: #158e3a;
+        }
+
+        .dropdown-item.active, .dropdown-item:active {
+            background-color: #158e3a;
+        }
+
+        .dropdown-header {
+            font-weight: bold;
+            color: #158e3a;
+        }
+
+        /* Основные цвета */
+        :root {
+            --primary-color: #158e3a;
+            --secondary-color: #6c757d;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --info-color: #17a2b8;
+        }
+
+        /* Курсоры при наведении */
+        .nav-link:hover {
+            color: var(--primary-color) !important;
+        }
+
+        /* Footer */
+        .footer {
+            background-color: #f8f9fa;
+            color: #6c757d;
+        }
+
+        /* Анимация для навигационных элементов */
+        .nav-item {
+            transition: transform 0.2s ease;
+        }
+
+            .nav-item:hover {
+                transform: translateY(-2px);
+            }
     </style>
-
-
 </head>
 <body class="d-flex custom-bg-color flex-column min-vh-100">
     <header>
-        <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+        <nav class="navbar navbar-expand-lg navbar-light bg-white">
             <div class="container-fluid">
                 <!-- Логотип -->
-                <p class="navbar-brand">
-                    ComputerApp`s
-                </p>
+                <a class="navbar-brand d-flex align-items-center" href="@Url.Action("Index", "Dashboard")">
+                    <i class="bi bi-pc-display-horizontal text-success me-2" style="font-size: 1.5rem;"></i>
+                    <span style="color: #158e3a; font-weight: bold;">CompanyApp</span>
+                </a>
 
                 <!-- Кнопка для мобильных устройств -->
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
-                <!-- Ссылки по центру -->
-                <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
-                    <ul class="navbar-nav">
+                <!-- Ссылки навигации -->
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav mx-auto">
                         <li class="nav-item">
-                            <a class="nav-link" href="@Url.Action("Index", "Office")" id="nav-link-office">Предприятия</a>
+                            <a class="nav-link" href="@Url.Action("Index", "Dashboard")" id="nav-link-dashboard">
+                                <i class="bi bi-speedometer2 me-1"></i> Дашборд
+                            </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="@Url.Action("Create", "Office")" id="nav-link-createoffice">Создать предприятие</a>
+
+                        <!-- Выпадающее меню офисов -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="nav-link-office" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-building me-1"></i> Офисы
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="nav-link-office">
+                                <li><a class="dropdown-item" href="@Url.Action("Index", "Office")">Список офисов</a></li>
+                                <li><a class="dropdown-item" href="@Url.Action("Create", "Office")">Добавить офис</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><h6 class="dropdown-header">Управление</h6></li>
+                                <li><a class="dropdown-item" href="@Url.Action("Index", "Department")">Отделы</a></li>
+                                <li><a class="dropdown-item" href="@Url.Action("Index", "Employee")">Сотрудники</a></li>
+                            </ul>
                         </li>
+
+                        <!-- Выпадающее меню оборудования -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="nav-link-equipment" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-pc-display me-1"></i> Оборудование
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="nav-link-equipment">
+                                <li><a class="dropdown-item" href="@Url.Action("GetComputersByOfficeId", "Computer", new { officeId = 1 })">Компьютеры</a></li>
+                                <li><a class="dropdown-item" href="@Url.Action("Index", "Equipment")">Орг. техника</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><h6 class="dropdown-header">Обслуживание</h6></li>
+                                <li><a class="dropdown-item" href="@Url.Action("Index", "Maintenance")">Журнал ТО</a></li>
+                                <li><a class="dropdown-item" href="@Url.Action("Dashboard", "Maintenance")">Дашборд ТО</a></li>
+                                <li><a class="dropdown-item" href="@Url.Action("Upcoming", "Maintenance")">Предстоящее ТО</a></li>
+                            </ul>
+                        </li>
+
+                        <!-- Выпадающее меню ПО -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="nav-link-software" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-file-earmark-code me-1"></i> Программное обеспечение
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="nav-link-software">
+                                <li><a class="dropdown-item" href="@Url.Action("Index", "SoftwareLicense")">Список лицензий</a></li>
+                                <li><a class="dropdown-item" href="@Url.Action("Create", "SoftwareLicense")">Добавить лицензию</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><h6 class="dropdown-header">Управление</h6></li>
+                                <li><a class="dropdown-item" href="@Url.Action("Expiring", "SoftwareLicense")">Истекающие лицензии</a></li>
+                            </ul>
+                        </li>
+
                         <li class="nav-item">
-                            <a class="nav-link" id="nav-link-info" asp-action="Privacy" asp-controller="Home">О приложении</a>
+                            <a class="nav-link" href="@Url.Action("Privacy", "Home")" id="nav-link-info">
+                                <i class="bi bi-info-circle me-1"></i> О приложении
+                            </a>
                         </li>
                     </ul>
+
+                    <!-- Кнопка справа -->
+                    <div class="d-flex">
+                        <a href="@Url.Action("Index", "Dashboard")" class="btn btn-outline-success">
+                            <i class="bi bi-grid-3x3-gap-fill"></i> Дашборд
+                        </a>
+                    </div>
                 </div>
             </div>
         </nav>
@@ -94,53 +198,58 @@
 
     <footer class="footer mt-auto py-3 bg-light border-top">
         <div class="container">
-            &copy; 2024 - CompanyApp - <a asp-area="" asp-controller="Office" asp-action="Index">Главная</a>
+            <div class="row">
+                <div class="col-md-6 text-center text-md-start">
+                    &copy; 2024 - CompanyApp - <a asp-controller="Dashboard" asp-action="Index">Дашборд</a>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <a href="@Url.Action("Privacy", "Home")" class="text-decoration-none text-muted">О приложении</a>
+                </div>
+            </div>
         </div>
     </footer>
-
-
-
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const navLinks = document.querySelectorAll('.nav-link');
-
-            // Загрузить активную ссылку из localStorage
-            const activeLinkId = localStorage.getItem('activeLink');
-
-            if (activeLinkId) {
-                // Если есть сохраненная активная ссылка, установить её активной
-                const activeLink = document.getElementById(activeLinkId);
-                if (activeLink) {
-                    activeLink.classList.add('active');
-                }
-            } else {
-                // По умолчанию активная ссылка - первая (если нужно)
-                navLinks[0].classList.add('active');
-            }
-
-            navLinks.forEach(link => {
-                link.addEventListener('click', function () {
-                    // Удалить класс active у всех ссылок
-                    navLinks.forEach(link => link.classList.remove('active'));
-
-                    // Добавить класс active к выбранной ссылке
-                    this.classList.add('active');
-
-                    // Сохранить выбранную ссылку в localStorage
-                    localStorage.setItem('activeLink', this.id);
-                });
-            });
-        });
-    </script>
-
-
-
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const navLinks = document.querySelectorAll('.nav-link');
+
+            // Выбор активной ссылки на основе текущего URL
+            const currentUrl = window.location.pathname.toLowerCase();
+            let activeLink = null;
+
+            // Проверка совпадения URL со ссылками меню
+            if (currentUrl.includes('/dashboard')) {
+                activeLink = document.getElementById('nav-link-dashboard');
+            } else if (currentUrl.includes('/office') || currentUrl.includes('/building') ||
+                currentUrl.includes('/department') || currentUrl.includes('/employee')) {
+                activeLink = document.getElementById('nav-link-office');
+            } else if (currentUrl.includes('/computer') || currentUrl.includes('/equipment') ||
+                currentUrl.includes('/maintenance')) {
+                activeLink = document.getElementById('nav-link-equipment');
+            } else if (currentUrl.includes('/softwarelicense')) {
+                activeLink = document.getElementById('nav-link-software');
+            } else if (currentUrl.includes('/home/privacy')) {
+                activeLink = document.getElementById('nav-link-info');
+            }
+
+            // Установка активного класса для выбранного элемента
+            if (activeLink) {
+                activeLink.classList.add('active');
+            } else {
+                // Если соответствие не найдено, по умолчанию активен дашборд
+                const defaultLink = document.getElementById('nav-link-dashboard');
+                if (defaultLink) {
+                    defaultLink.classList.add('active');
+                }
+            }
+        });
+    </script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

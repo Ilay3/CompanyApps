@@ -1,0 +1,114 @@
+﻿@model IEnumerable<CompanyApp.Application.DTOs.SoftwareLicenseDto>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-12">
+            <div class="card shadow-sm border-0 rounded-3">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="card-title" style="color: #158e3a;">Программное обеспечение</h2>
+                        <div>
+                            <a asp-action="Create" class="btn btn-success">
+                                <i class="bi bi-plus-circle"></i> Добавить ПО
+                            </a>
+                            <a asp-action="Expiring" class="btn btn-warning">
+                                <i class="bi bi-exclamation-triangle"></i> Истекающие лицензии
+                            </a>
+                            <a asp-action="Index" asp-controller="Dashboard" class="btn btn-secondary">
+                                <i class="bi bi-house-door"></i> На главную
+                            </a>
+                        </div>
+                    </div>
+
+                    @if (!Model.Any())
+                    {
+                        <div class="alert alert-info mt-3">
+                            <i class="bi bi-info-circle"></i> Программное обеспечение не найдено. Добавьте новое ПО, нажав на кнопку выше.
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Название</th>
+                                        <th>Версия</th>
+                                        <th>Тип лицензии</th>
+                                        <th>Срок действия</th>
+                                        <th>Лицензии</th>
+                                        <th>Стоимость</th>
+                                        <th>Действия</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model)
+                                    {
+                                        var daysLeft = item.ExpirationDate.HasValue ?
+                                        (item.ExpirationDate.Value - DateTime.Now).Days : int.MaxValue;
+
+                                        var expiration = item.ExpirationDate.HasValue
+                                        ? item.ExpirationDate.Value.ToString("dd.MM.yyyy")
+                                        : "Бессрочно";
+
+                                        var statusClass = daysLeft <= 0 ? "bg-danger" :
+                                        daysLeft <= 30 ? "bg-warning" :
+                                        "bg-success";
+
+                                        var licenseStatusClass = item.SeatsUsed >= item.Seats ? "bg-danger" :
+                                        item.SeatsUsed > (item.Seats * 0.8) ? "bg-warning" :
+                                        "bg-success";
+
+                                        <tr>
+                                            <td>@item.Name</td>
+                                            <td>@item.Version</td>
+                                            <td>@item.LicenseType</td>
+                                            <td>
+                                                <span class="badge @statusClass">@expiration</span>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="progress flex-grow-1 me-2" style="height: 10px;">
+                                                        @{
+                                                            var percentage = (item.SeatsUsed * 100.0) / item.Seats;
+                                                        }
+                                                        <div class="progress-bar @licenseStatusClass" role="progressbar"
+                                                             style="width: @percentage%;"
+                                                             aria-valuenow="@percentage" aria-valuemin="0" aria-valuemax="100">
+                                                        </div>
+                                                    </div>
+                                                    <span>@item.SeatsUsed / @item.Seats</span>
+                                                </div>
+                                            </td>
+                                            <td>@item.Cost.ToString("C")</td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">
+                                                        <i class="bi bi-info-circle"></i>
+                                                    </a>
+                                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </a>
+                                                    <a asp-action="Assign" asp-route-id="@item.Id" class="btn btn-sm btn-outline-success">
+                                                        <i class="bi bi-laptop"></i>
+                                                    </a>
+                                                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger">
+                                                        <i class="bi bi-trash"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+}

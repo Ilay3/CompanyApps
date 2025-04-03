@@ -3,19 +3,19 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.35122.118
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CompanyApp.API", "CompanyApp\CompanyApp.API.csproj", "{42962774-2427-4941-9569-FC4F67A95F82}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CompanyApp.API", "CompanyApp\CompanyApp.API.csproj", "{42962774-2427-4941-9569-FC4F67A95F82}"
 	ProjectSection(ProjectDependencies) = postProject
 		{5B0E4190-6DA6-4510-A559-9588C98AA10B} = {5B0E4190-6DA6-4510-A559-9588C98AA10B}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CompanyApp.Core", "CompanyApp.Core\CompanyApp.Core.csproj", "{5B0E4190-6DA6-4510-A559-9588C98AA10B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CompanyApp.Core", "CompanyApp.Core\CompanyApp.Core.csproj", "{5B0E4190-6DA6-4510-A559-9588C98AA10B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CompanyApp.Application", "CompanyApp.Application\CompanyApp.Application.csproj", "{D927A6BF-B3B2-4191-946C-62489CE79EB8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CompanyApp.Application", "CompanyApp.Application\CompanyApp.Application.csproj", "{D927A6BF-B3B2-4191-946C-62489CE79EB8}"
 	ProjectSection(ProjectDependencies) = postProject
 		{0816829B-20BA-42E1-A45A-9D49E1FBA08F} = {0816829B-20BA-42E1-A45A-9D49E1FBA08F}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CompanyApp.Infrastructure", "CompanyApp.Infrastructure\CompanyApp.Infrastructure.csproj", "{0816829B-20BA-42E1-A45A-9D49E1FBA08F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CompanyApp.Infrastructure", "CompanyApp.Infrastructure\CompanyApp.Infrastructure.csproj", "{0816829B-20BA-42E1-A45A-9D49E1FBA08F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

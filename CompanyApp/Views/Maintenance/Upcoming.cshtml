@@ -1,0 +1,240 @@
+﻿@model IEnumerable<CompanyApp.Application.DTOs.MaintenanceRecordDto>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow-sm border-0 rounded-3">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="card-title" style="color: #158e3a;">Предстоящее техническое обслуживание</h2>
+                        <div>
+                            <a asp-action="Index" class="btn btn-primary">
+                                <i class="bi bi-list-check"></i> Все записи
+                            </a>
+                            <a asp-action="Dashboard" class="btn btn-info text-white">
+                                <i class="bi bi-speedometer2"></i> Дашборд
+                            </a>
+                            <a asp-action="Index" asp-controller="Dashboard" class="btn btn-secondary">
+                                <i class="bi bi-house-door"></i> На главную
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Переключатель периода -->
+                    <div class="card bg-light mb-4">
+                        <div class="card-body">
+                            <form method="get" class="row g-3 align-items-center">
+                                <div class="col-md-auto">
+                                    <label class="form-label mb-0">Показать на ближайшие:</label>
+                                </div>
+                                <div class="col-md-auto">
+                                    <div class="btn-group" role="group">
+                                        <a href="@Url.Action("Upcoming", new { days = 7 })" class="btn @(ViewBag.Days == 7 ? "btn-primary" : "btn-outline-primary")">7 дней</a>
+                                        <a href="@Url.Action("Upcoming", new { days = 30 })" class="btn @(ViewBag.Days == 30 ? "btn-primary" : "btn-outline-primary")">30 дней</a>
+                                        <a href="@Url.Action("Upcoming", new { days = 90 })" class="btn @(ViewBag.Days == 90 ? "btn-primary" : "btn-outline-primary")">90 дней</a>
+                                        <a href="@Url.Action("Upcoming", new { days = 365 })" class="btn @(ViewBag.Days == 365 ? "btn-primary" : "btn-outline-primary")">Год</a>
+                                    </div>
+                                </div>
+                                <div class="col-md-auto">
+                                    <div class="input-group">
+                                        <input type="number" id="customDays" name="days" class="form-control" placeholder="Другой период"
+                                               min="1" max="1000" value="@(ViewBag.Days != 7 && ViewBag.Days != 30 && ViewBag.Days != 90 && ViewBag.Days != 365 ? ViewBag.Days : "")" />
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="bi bi-calendar-check"></i> Показать
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    @if (!Model.Any())
+                    {
+                        <div class="alert alert-info mt-3">
+                            <i class="bi bi-info-circle"></i> Нет предстоящего технического обслуживания на следующие @ViewBag.Days дней.
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info mb-4">
+                            <i class="bi bi-info-circle-fill me-2"></i>
+                            Показаны записи с предстоящим техническим обслуживанием на ближайшие <strong>@ViewBag.Days</strong> дней.
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Дата следующего ТО</th>
+                                        <th>Осталось дней</th>
+                                        <th>Оборудование</th>
+                                        <th>Тип</th>
+                                        <th>Описание</th>
+                                        <th>Статус</th>
+                                        <th>Действия</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.OrderBy(m => m.NextMaintenanceDate))
+                                    {
+                                        var daysLeft = item.NextMaintenanceDate.HasValue ?
+                                        (item.NextMaintenanceDate.Value - DateTime.Now).Days : 0;
+
+                                        var rowClass = daysLeft <= 0 ? "table-danger" :
+                                        daysLeft <= 7 ? "table-warning" : "";
+
+                                        var daysLeftText = daysLeft <= 0 ? "Просрочено" : $"{daysLeft} дн.";
+                                        var daysLeftClass = daysLeft <= 0 ? "text-danger fw-bold" :
+                                        daysLeft <= 7 ? "text-warning fw-bold" :
+                                        "text-muted";
+
+                                        var typeClass = item.MaintenanceType == "Emergency" ? "text-danger" :
+                                        item.MaintenanceType == "Warranty" ? "text-primary" :
+                                        "text-success";
+
+                                        var typeName = item.MaintenanceType == "Planned" ? "Плановое" :
+                                        item.MaintenanceType == "Emergency" ? "Экстренное" :
+                                        item.MaintenanceType == "Warranty" ? "Гарантийное" :
+                                        item.MaintenanceType;
+
+                                        <tr class="@rowClass">
+                                            <td>
+                                                @item.NextMaintenanceDate?.ToString("dd.MM.yyyy")
+                                            </td>
+                                            <td class="@daysLeftClass">
+                                                @daysLeftText
+                                            </td>
+                                            <td>
+                                                @if (item.Computer != null)
+                                                {
+                                                    <a asp-controller="Computer" asp-action="Details" asp-route-id="@item.ComputerId">
+                                                        <i class="bi bi-pc-display"></i> @item.Computer.Model
+                                                    </a>
+                                                }
+                                                else if (item.Equipment != null)
+                                                {
+                                                    <a asp-controller="Equipment" asp-action="Details" asp-route-id="@item.EquipmentId">
+                                                        <i class="bi bi-printer"></i> @item.Equipment.Type @item.Equipment.Model
+                                                    </a>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">Не указано</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <span class="@typeClass">@typeName</span>
+                                            </td>
+                                            <td>
+                                                @(item.Description.Length > 50 ? item.Description.Substring(0, 47) + "..." : item.Description)
+                                            </td>
+                                            <td>
+                                                @{
+                                                    var statusClass = item.Status == "Completed" ? "bg-success" :
+                                                    item.Status == "Cancelled" ? "bg-danger" :
+                                                    "bg-warning";
+
+                                                    var statusName = item.Status == "Pending" ? "Ожидает" :
+                                                    item.Status == "Completed" ? "Завершено" :
+                                                    item.Status == "Cancelled" ? "Отменено" :
+                                                    item.Status;
+                                                }
+                                                <span class="badge @statusClass">@statusName</span>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">
+                                                        <i class="bi bi-info-circle"></i>
+                                                    </a>
+                                                    @if (item.Status == "Pending")
+                                                    {
+                                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-success">
+                                                            <i class="bi bi-check-circle"></i>
+                                                        </a>
+                                                    }
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Сводка по неделям -->
+                        <div class="card mt-4">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">
+                                    <i class="bi bi-calendar-week me-2"></i>Распределение по неделям
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                @{
+                                    // Группировка записей по неделям
+                                    var today = DateTime.Now.Date;
+                                    var groupedByWeek = Model
+                                    .Where(m => m.NextMaintenanceDate.HasValue)
+                                    .GroupBy(m => ((m.NextMaintenanceDate.Value - today).Days / 7))
+                                    .OrderBy(g => g.Key);
+
+                                    var maxCount = groupedByWeek.Any() ? groupedByWeek.Max(g => g.Count()) : 0;
+                                }
+
+                                @foreach (var weekGroup in groupedByWeek)
+                                {
+                                    var weekNumber = weekGroup.Key;
+                                    var weekStart = today.AddDays(weekNumber * 7);
+                                    var weekEnd = weekStart.AddDays(6);
+                                    var recordCount = weekGroup.Count();
+                                    var percentage = maxCount > 0 ? (recordCount * 100) / maxCount : 0;
+
+                                    var weekLabel = weekNumber == 0 ? "Текущая неделя" :
+                                    weekNumber == 1 ? "Следующая неделя" :
+                                    $"Через {weekNumber} {GetWeekEnding(weekNumber)} ({weekStart.ToString("dd.MM")} - {weekEnd.ToString("dd.MM")})";
+
+                                    var barClass = weekNumber == 0 ? "bg-danger" :
+                                    weekNumber == 1 ? "bg-warning" :
+                                    "bg-primary";
+
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <span>@weekLabel</span>
+                                            <span class="badge bg-secondary">@recordCount шт.</span>
+                                        </div>
+                                        <div class="progress" style="height: 10px;">
+                                            <div class="progress-bar @barClass" role="progressbar"
+                                                 style="width: @percentage%;"
+                                                 aria-valuenow="@percentage" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+}
+
+@functions {
+    string GetWeekEnding(int weekNumber)
+    {
+        var lastDigit = weekNumber % 10;
+        var lastTwoDigits = weekNumber % 100;
+
+        if (lastTwoDigits >= 11 && lastTwoDigits <= 19)
+            return "недель";
+
+        if (lastDigit == 1)
+            return "неделю";
+
+        if (lastDigit >= 2 && lastDigit <= 4)
+            return "недели";
+
+        return "недель";
+    }
+}

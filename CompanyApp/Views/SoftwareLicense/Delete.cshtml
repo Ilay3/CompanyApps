@@ -1,0 +1,74 @@
+﻿@model CompanyApp.Application.DTOs.SoftwareLicenseDto
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0 rounded-3">
+                <div class="card-body">
+                    <h2 class="card-title mb-4 text-danger">Удаление программного обеспечения</h2>
+
+                    <div class="alert alert-danger mb-4">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <strong>Внимание!</strong> Вы собираетесь удалить программное обеспечение и все связанные с ним установки. Это действие невозможно отменить.
+                    </div>
+
+                    <div class="card bg-light mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">@Model.Name @Model.Version</h5>
+                            <table class="table table-borderless">
+                                <tbody>
+                                    <tr>
+                                        <th style="width: 40%;">Тип лицензии:</th>
+                                        <td>@Model.LicenseType</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Количество лицензий:</th>
+                                        <td>@Model.SeatsUsed / @Model.Seats используется</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Срок действия:</th>
+                                        <td>
+                                            @if (Model.ExpirationDate.HasValue)
+                                            {
+                                                @Model.ExpirationDate.Value.ToString("dd.MM.yyyy")
+                                            }
+                                            else
+                                            {
+                                                <span>Бессрочно</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Установлено на:</th>
+                                        <td>@Model.SeatsUsed компьютерах</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    @if (Model.SeatsUsed > 0)
+                    {
+                        <div class="alert alert-warning mb-4">
+                            <i class="bi bi-exclamation-circle-fill me-2"></i>
+                            Это программное обеспечение установлено на <strong>@Model.SeatsUsed</strong> компьютерах. При удалении все установки будут также удалены.
+                        </div>
+                    }
+
+                    <form asp-action="Delete" method="post">
+                        <input type="hidden" asp-for="Id" />
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-trash"></i> Подтвердить удаление
+                            </button>
+                            <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Отмена
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

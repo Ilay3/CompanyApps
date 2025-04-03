@@ -20,11 +20,16 @@ namespace CompanyApp.Infrastructure.Data
         public DbSet<Computer> Computers { get; set; }
         public DbSet<DisplayMonitor> DisplayMonitors { get; set; }
 
+        // Новые DbSets для программного обеспечения и ТО
+        public DbSet<SoftwareLicense> SoftwareLicenses { get; set; }
+        public DbSet<ComputerSoftware> ComputerSoftware { get; set; }
+        public DbSet<MaintenanceRecord> MaintenanceRecords { get; set; }
+
         public OfficeDbContext(DbContextOptions<OfficeDbContext> options) : base(options) { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Установите связи между таблицами
+            // Существующие отношения
             modelBuilder.Entity<Office>()
                 .HasMany(o => o.Buildings)
                 .WithOne(b => b.Office)
@@ -59,6 +64,32 @@ namespace CompanyApp.Infrastructure.Data
                 .HasMany(c => c.DisplayMonitors)
                 .WithOne(m => m.Computer)
                 .HasForeignKey(m => m.ComputerId);
+
+            // Новые отношения
+
+            // Отношение Many-to-Many между Computer и SoftwareLicense через ComputerSoftware
+            modelBuilder.Entity<ComputerSoftware>()
+                .HasOne(cs => cs.Computer)
+                .WithMany()
+                .HasForeignKey(cs => cs.ComputerId);
+
+            modelBuilder.Entity<ComputerSoftware>()
+                .HasOne(cs => cs.SoftwareLicense)
+                .WithMany(s => s.ComputerSoftware)
+                .HasForeignKey(cs => cs.SoftwareLicenseId);
+
+            // Настройка отношений для MaintenanceRecord
+            modelBuilder.Entity<MaintenanceRecord>()
+                .HasOne(mr => mr.Computer)
+                .WithMany()
+                .HasForeignKey(mr => mr.ComputerId)
+                .IsRequired(false); // Допускается отсутствие связи с компьютером
+
+            modelBuilder.Entity<MaintenanceRecord>()
+                .HasOne(mr => mr.Equipment)
+                .WithMany()
+                .HasForeignKey(mr => mr.EquipmentId)
+                .IsRequired(false); // Допускается отсутствие связи с оборудованием
         }
     }
 }

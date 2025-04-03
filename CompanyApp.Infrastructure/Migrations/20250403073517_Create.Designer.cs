@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CompanyApp.Infrastructure.Migrations
 {
     [DbContext(typeof(OfficeDbContext))]
-    [Migration("20240917102007_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250403073517_Create")]
+    partial class Create
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -89,6 +89,35 @@ namespace CompanyApp.Infrastructure.Migrations
                     b.HasIndex("EmployeeId");
 
                     b.ToTable("Computers");
+                });
+
+            modelBuilder.Entity("CompanyApp.Core.Entities.ComputerSoftware", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ComputerId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("InstallationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("SoftwareLicenseId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ComputerId");
+
+                    b.HasIndex("SoftwareLicenseId");
+
+                    b.ToTable("ComputerSoftware");
                 });
 
             modelBuilder.Entity("CompanyApp.Core.Entities.Department", b =>
@@ -186,6 +215,59 @@ namespace CompanyApp.Infrastructure.Migrations
                     b.ToTable("Equipments");
                 });
 
+            modelBuilder.Entity("CompanyApp.Core.Entities.MaintenanceRecord", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AttachmentPath")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("ComputerId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal?>("Cost")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("EquipmentId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("MaintenanceDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("MaintenanceType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("NextMaintenanceDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TechnicianName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ComputerId");
+
+                    b.HasIndex("EquipmentId");
+
+                    b.ToTable("MaintenanceRecords");
+                });
+
             modelBuilder.Entity("CompanyApp.Core.Entities.Office", b =>
                 {
                     b.Property<int>("Id")
@@ -203,6 +285,53 @@ namespace CompanyApp.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Offices");
+                });
+
+            modelBuilder.Entity("CompanyApp.Core.Entities.SoftwareLicense", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Cost")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("ExpirationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LicenseKey")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LicenseType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("PurchaseDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Seats")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SeatsUsed")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Version")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SoftwareLicenses");
                 });
 
             modelBuilder.Entity("CompanyApp.Core.Entities.Building", b =>
@@ -225,6 +354,25 @@ namespace CompanyApp.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Employee");
+                });
+
+            modelBuilder.Entity("CompanyApp.Core.Entities.ComputerSoftware", b =>
+                {
+                    b.HasOne("CompanyApp.Core.Entities.Computer", "Computer")
+                        .WithMany()
+                        .HasForeignKey("ComputerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CompanyApp.Core.Entities.SoftwareLicense", "SoftwareLicense")
+                        .WithMany("ComputerSoftware")
+                        .HasForeignKey("SoftwareLicenseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Computer");
+
+                    b.Navigation("SoftwareLicense");
                 });
 
             modelBuilder.Entity("CompanyApp.Core.Entities.Department", b =>
@@ -275,6 +423,21 @@ namespace CompanyApp.Infrastructure.Migrations
                     b.Navigation("Department");
                 });
 
+            modelBuilder.Entity("CompanyApp.Core.Entities.MaintenanceRecord", b =>
+                {
+                    b.HasOne("CompanyApp.Core.Entities.Computer", "Computer")
+                        .WithMany()
+                        .HasForeignKey("ComputerId");
+
+                    b.HasOne("CompanyApp.Core.Entities.Equipment", "Equipment")
+                        .WithMany()
+                        .HasForeignKey("EquipmentId");
+
+                    b.Navigation("Computer");
+
+                    b.Navigation("Equipment");
+                });
+
             modelBuilder.Entity("CompanyApp.Core.Entities.Building", b =>
                 {
                     b.Navigation("Departments");
@@ -302,6 +465,11 @@ namespace CompanyApp.Infrastructure.Migrations
                     b.Navigation("Buildings");
 
                     b.Navigation("Departments");
+                });
+
+            modelBuilder.Entity("CompanyApp.Core.Entities.SoftwareLicense", b =>
+                {
+                    b.Navigation("ComputerSoftware");
                 });
 #pragma warning restore 612, 618
         }
