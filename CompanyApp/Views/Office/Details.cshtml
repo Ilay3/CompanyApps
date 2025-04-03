@@ -1,0 +1,123 @@
+﻿@model CompanyApp.Application.DTOs.OfficeDto
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow-lg border-0 rounded-3">
+                <div class="card-body p-4">
+                    <!-- Название офиса и город -->
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="card-title text-success">@Model.Name - @Model.City</h2>
+                        <a asp-action="Index" class="btn btn-outline-secondary d-flex align-items-center">
+                            <i class="bi bi-arrow-left-circle me-2"></i> Назад
+                        </a>
+                    </div>
+
+                    <hr class="mb-4" />
+
+                    <!-- Корпуса и отделы -->
+                    @if (Model.Buildings != null && Model.Buildings.Any())
+                    {
+                        @foreach (var building in Model.Buildings)
+                        {
+                            <!-- Название корпуса -->
+                            <h4 class="text-success mb-3 mt-4">
+                                <i class="bi bi-building-fill me-2"></i>@building.Name
+                            </h4>
+
+                            <!-- Отделы в корпусе -->
+                            @if (building.Departments != null && building.Departments.Any())
+                            {
+                                <ul class="list-group">
+                                    @foreach (var department in building.Departments)
+                                    {
+                                        <li class="list-group-item border-0 ps-4">
+                                            <i class="bi bi-diagram-3-fill text-success me-2"></i>@department.Name
+                                        </li>
+                                    }
+                                </ul>
+                            }
+                            else
+                            {
+                                <div class="alert alert-warning mt-2">
+                                    <i class="bi bi-info-circle-fill me-2"></i>В этом корпусе нет отделов.
+                                </div>
+                            }
+                        }
+                    }
+                    else
+
+                    {
+                        <!-- Корпуса -->
+                        @if (Model.Buildings.Any())
+
+                        {
+                            <h4 class="text-success mb-3">Корпуса</h4>
+                            <div class="list-group">
+                                @foreach (var building in Model.Buildings)
+
+                                {
+                                    <a href="#" class="list-group-item list-group-item-action border-0">
+                                        <i class="bi bi-building-fill text-success me-2"></i>@building.Name
+                                    </a>
+                                }
+                            </div>
+                        }
+
+                        else
+
+                        {
+                            <div class="alert alert-warning mt-3">
+                                <i class="bi bi-info-circle-fill me-2"></i>На этом предприятии нет корпусов.
+                            </div>
+                        }
+
+                        <!-- Отделы -->
+                        @if (Model.Departments.Any())
+
+                        {
+                            <h4 class="text-success mt-5 mb-3">Отделы</h4>
+                            <div class="list-group">
+                                @foreach (var department in Model.Departments)
+
+                                {
+                                    <a href="#" class="list-group-item list-group-item-action border-0">
+                                        <i class="bi bi-diagram-3-fill text-success me-2"></i>@department.Name
+                                    </a>
+                                }
+                            </div>
+                        }
+
+                        else
+
+                        {
+                            <div class="alert alert-warning mt-3">
+                                <i class="bi bi-info-circle-fill me-2"></i>На этом предприятии нет отделов.
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Дополнительные стили -->
+<style>
+    .card {
+        background-color: #f8f9fa;
+    }
+
+    .list-group-item-action:hover {
+        background-color: #e9ecef;
+    }
+
+    .list-group-item i {
+        font-size: 1.2rem;
+    }
+
+    .btn-outline-secondary {
+        border-radius: 50px;
+        padding: 0.5rem 1rem;
+    }
+</style>

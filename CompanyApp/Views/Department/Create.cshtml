@@ -1,0 +1,77 @@
+﻿@model CompanyApp.Application.DTOs.CreateDepartmentDto
+@{
+    ViewData["Title"] = "Создание отдела";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0 rounded-3">
+                <div class="card-body">
+                    <!-- Заголовок -->
+                    <h2 class="card-title mb-4" style="color: #158e3a;">@ViewData["Title"]</h2>
+
+                    <!-- Форма создания отдела -->
+                    <form asp-action="Create" method="post">
+                        @Html.AntiForgeryToken()
+
+                        <!-- Название отдела -->
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label">Название отдела</label>
+                            <input asp-for="Name" class="form-control" placeholder="Введите название отдела" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+
+                        <!-- Офис (скрытое поле) -->
+                        <input type="hidden" asp-for="OfficeId" value="@ViewBag.OfficeId" />
+
+
+                        <!-- Корпус -->
+                        <div class="mb-3" id="buildingDiv">
+                            <label asp-for="BuildingId" class="form-label">Корпус</label>
+                            <select asp-for="BuildingId" class="form-select" asp-items="ViewBag.Buildings">
+                                <option value="">Выберите корпус</option>
+                            </select>
+                            <span asp-validation-for="BuildingId" class="text-danger"></span>
+                        </div>
+
+                        <!-- Кнопки -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="submit" class="btn btn-success w-100">Создать</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#OfficeId').change(function () {
+                var officeId = $(this).val();
+                if (officeId) {
+                    $.ajax({
+                        url: '/Department/GetBuildings',
+                        type: 'GET',
+                        data: { officeId: officeId },
+                        success: function (buildings) {
+                            var buildingSelect = $('#BuildingId');
+                            buildingSelect.empty();
+                            buildingSelect.append('<option value="">Выберите корпус</option>');
+                            $.each(buildings, function (index, building) {
+                                buildingSelect.append('<option value="' + building.id + '">' + building.name + '</option>');
+                            });
+                        },
+                        error: function () {
+                            alert('Ошибка при загрузке корпусов.');
+                        }
+                    });
+                } else {
+                    $('#BuildingId').empty().append('<option value="">Выберите корпус</option>');
+                }
+            });
+        });
+    </script>
+}

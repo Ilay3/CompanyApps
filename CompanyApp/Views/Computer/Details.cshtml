@@ -1,0 +1,168 @@
+﻿@using CompanyApp.Application.DTOs
+@model ComputerDto
+
+<!-- Обертка для деталей компьютера -->
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow-sm border-0 rounded-3">
+                <div class="card-body">
+                    <!-- Заголовок -->
+                    <h2 class="card-title mb-4" style="color: #158e3a;">Детали компьютера: @Model.UniqueIdentifier</h2>
+
+                    <!-- Общая информация -->
+                    <h3 class="card-subtitle mb-3">Общая информация</h3>
+                    <ul class="list-group mb-4">
+                        <li class="list-group-item"><strong>Модель:</strong> @Model.Model</li>
+                        <li class="list-group-item"><strong>Процессор:</strong> @Model.Processor</li>
+                        <li class="list-group-item"><strong>Оперативная память (RAM):</strong> @Model.RAM</li>
+                        <li class="list-group-item"><strong>Накопитель:</strong> @Model.Storage</li>
+                    </ul>
+
+                    <h3 class="card-subtitle mb-3">Информация о системе</h3>
+                    <ul class="list-group mb-4">
+                        <li class="list-group-item">
+                            <strong>Версия ОС:</strong> @Model.OSVersion
+                        </li>
+                        <!-- Поле для ключа ОС -->
+                        <li class="list-group-item">
+                            <strong>Ключ ОС:</strong>
+                            <div class="input-group">
+                                <input type="password" id="osKey" class="form-control key-input" value="" readonly />
+                                <button class="btn btn-outline-secondary" type="button" onclick="getKey('OS')" aria-label="Получить ключ">
+                                    <i id="osEyeIcon" class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn btn-outline-secondary" type="button" onclick="copyToClipboard('osKey')" aria-label="Скопировать ключ">
+                                    <i class="bi bi-clipboard"></i>
+                                </button>
+                            </div>
+                        </li>
+                        <li class="list-group-item">
+                            <strong>Версия MS Office:</strong> @Model.OfficeVersion
+                        </li>
+                        <li class="list-group-item">
+                            <strong>Ключ MS Office:</strong>
+                            <div class="input-group">
+                                <input type="password" id="officeKey" class="form-control key-input" value="" readonly />
+                                <button class="btn btn-outline-secondary" type="button" onclick="getKey('Office')" aria-label="Получить ключ">
+                                    <i id="officeEyeIcon" class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn btn-outline-secondary" type="button" onclick="copyToClipboard('officeKey')" aria-label="Скопировать ключ">
+                                    <i class="bi bi-clipboard"></i>
+                                </button>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <!-- Информация о сотруднике -->
+                    <h3 class="card-subtitle mb-3">Информация о сотруднике</h3>
+                    <ul class="list-group mb-4">
+                        <li class="list-group-item"><strong>Имя сотрудника:</strong> @Model.Employee?.FullName</li>
+                        @if (Model.Employee?.Department != null)
+                        {
+                            <li class="list-group-item"><strong>Отдел:</strong> @Model.Employee.Department.Name</li>
+                        }
+                        else
+                        {
+                            <li class="list-group-item"><strong>Отдел:</strong> Не назначен</li>
+                        }
+                    </ul>
+
+                    <!-- Информация о мониторах -->
+                    <h3 class="card-subtitle mb-3">Мониторы</h3>
+                    
+
+                    @if (Model.Monitors != null && Model.Monitors.Any())
+                    {
+                        <ul class="list-group mb-4">
+                            @foreach (var monitor in Model.Monitors)
+                            {
+                                <li class="list-group-item">
+                                    <strong>Модель монитора:</strong> @monitor.Model <br />
+                                    <strong>Разрешение:</strong> @monitor.Resolution
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p class="text-muted">Мониторы не назначены.</p>
+                    }
+
+                    <!-- Кнопка для экспорта -->
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                        <a asp-action="ExportComputerDetailsToPdf" asp-route-id="@Model.Id" class="btn btn-outline-danger" type="button">
+                            <i class="fas fa-file-pdf"></i> Экспорт в PDF
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+
+    <!-- Скрипт для раскрытия ключа и копирования в буфер обмена -->
+    <script>
+        function getKey(keyType) {
+            const inputId = keyType === 'OS' ? 'osKey' : 'officeKey';
+            const iconId = keyType === 'OS' ? 'osEyeIcon' : 'officeEyeIcon';
+            const computerId = @Model.Id;
+
+            fetch(`/Computer/GetKey?computerId=${computerId}&keyType=${keyType}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Ошибка при получении ключа');
+                    }
+                    return response.text();
+                })
+                .then(key => {
+                    var input = document.getElementById(inputId);
+                    var icon = document.getElementById(iconId);
+
+                    input.value = key;
+                    input.type = "text";
+                    icon.classList.remove('bi-eye');
+                    icon.classList.add('bi-eye-slash');
+
+                    // Меняем функцию кнопки на скрытие ключа
+                    const button = icon.parentElement;
+                    button.onclick = function () {
+                        input.type = "password";
+                        icon.classList.remove('bi-eye-slash');
+                        icon.classList.add('bi-eye');
+                        input.value = '';
+                        // Меняем функцию обратно на получение ключа
+                        button.onclick = function () {
+                            getKey(keyType);
+                        };
+                    };
+                })
+                .catch(error => {
+                    console.error('Ошибка:', error);
+                    alert('Не удалось получить ключ. Попробуйте снова.');
+                });
+        }
+
+        function copyToClipboard(inputId) {
+            var input = document.getElementById(inputId);
+            var textToCopy = input.value;
+
+            if (!textToCopy) {
+                alert('Нечего копировать. Сначала получите ключ.');
+                return;
+            }
+
+            navigator.clipboard.writeText(textToCopy)
+                .then(function () {
+                    alert("Ключ скопирован в буфер обмена!");
+                })
+                .catch(function (err) {
+                    console.error('Ошибка при копировании: ', err);
+                });
+        }
+    </script>
+
+}

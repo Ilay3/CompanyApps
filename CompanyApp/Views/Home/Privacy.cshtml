@@ -1,0 +1,129 @@
+﻿@{
+    ViewData["Title"] = "О приложении";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0 rounded-3">
+                <div class="card-body">
+                    <h2 class="card-title mb-4" style="color: #158e3a;">О приложении</h2>
+                    <p>
+                        Добро пожаловать в корпоративную систему управления, разработанную для оптимизации работы организаций.
+                        Наше приложение позволяет эффективно управлять ресурсами предприятия, включая здания, отделы, офисы, сотрудников и оборудование.
+                        Оно разработано с акцентом на удобство использования, безопасность данных и возможность масштабирования в зависимости от размеров организации.
+                    </p>
+
+                    <h3 class="mt-4" style="color: #158e3a;">Основные функции</h3>
+                    <p>
+                        В приложении реализован широкий спектр функций для управления различными сущностями предприятия:
+                    </p>
+                    <ul class="list-group">
+                        <li class="list-group-item border-0 ps-0">
+                            <i class="bi bi-building-fill" style="color: #158e3a;"></i> <strong>Управление офисами и корпусами:</strong> система позволяет добавлять и редактировать информацию о корпоративных офисах, а также связанных с ними корпусах.
+                        </li>
+                        <li class="list-group-item border-0 ps-0">
+                            <i class="bi bi-diagram-3-fill" style="color: #158e3a;"></i> <strong>Отделы:</strong> приложение поддерживает создание, редактирование и управление отделами внутри зданий, позволяя легко отслеживать структуру предприятия.
+                        </li>
+                        <li class="list-group-item border-0 ps-0">
+                            <i class="bi bi-people-fill" style="color: #158e3a;"></i> <strong>Сотрудники:</strong> пользователи могут добавлять сотрудников, редактировать их профили, назначать их на различные отделы и отслеживать персональные данные.
+                        </li>
+                        <li class="list-group-item border-0 ps-0">
+                            <i class="bi bi-hdd-fill" style="color: #158e3a;"></i> <strong>Оборудование:</strong> система помогает управлять оргтехникой и компьютерным оборудованием. Возможности включают добавление устройств, редактирование информации и назначение их в отделы или к сотрудникам.
+                        </li>
+                    </ul>
+
+                    <h3 class="mt-4" style="color: #158e3a;">Особенности интерфейса</h3>
+                    <p>
+                        Важной особенностью нашего приложения является интуитивно понятный интерфейс. Благодаря адаптивному дизайну, пользователи могут управлять данными как на настольных компьютерах, так и на мобильных устройствах.
+                        Простая навигация и использование популярных элементов управления (например, выпадающих списков, кнопок редактирования и сохранения) делают взаимодействие с приложением легким и быстрым.
+                    </p>
+
+                    <h3 class="mt-4" style="color: #158e3a;">Безопасность и надежность</h3>
+                    <p>
+                        Внедренные механизмы защиты данных включают многоуровневую аутентификацию, шифрование данных и регулярные резервные копии. Мы уделяем особое внимание защите информации сотрудников и оборудования предприятия.
+                    </p>
+
+                    <p class="text-muted mt-4">
+                        Приложение продолжает развиваться, добавляются новые функции и возможности. Мы стремимся обеспечить удобный и безопасный инструмент для управления вашими ресурсами.
+                    </p>
+                    <h3 class="mt-4" style="color: #158e3a;">Инструкция по использованию</h3>
+                    <p>
+                        Ниже приведены шаги для работы с приложением. Нажмите на шаг, чтобы раскрыть его описание:
+                    </p>
+
+                    <!-- Инструкция с анимацией раскрытия -->
+                    <div class="accordion" id="instructionAccordion">
+                        <!-- Шаг 1 -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="stepOneHeading">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#stepOne" aria-expanded="true" aria-controls="stepOne">
+                                    Шаг 1: Управление офисами и корпусами
+                                </button>
+                            </h2>
+                            <div id="stepOne" class="accordion-collapse collapse show" aria-labelledby="stepOneHeading" data-bs-parent="#instructionAccordion">
+                                <div class="accordion-body">
+                                    Чтобы начать, перейдите в раздел <strong>Офисы</strong> и выберите офис, который хотите редактировать или добавить новый.
+                                    После выбора офиса вы можете добавлять корпуса к нему, редактировать или удалять существующие.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Шаг 2 -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="stepTwoHeading">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#stepTwo" aria-expanded="false" aria-controls="stepTwo">
+                                    Шаг 2: Управление отделами
+                                </button>
+                            </h2>
+                            <div id="stepTwo" class="accordion-collapse collapse" aria-labelledby="stepTwoHeading" data-bs-parent="#instructionAccordion">
+                                <div class="accordion-body">
+                                    В разделе <strong>Отделы</strong> можно добавлять новые отделы к корпусам или редактировать существующие.
+                                    Для каждого отдела вы можете назначать сотрудников и оборудование.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Шаг 3 -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="stepThreeHeading">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#stepThree" aria-expanded="false" aria-controls="stepThree">
+                                    Шаг 3: Управление сотрудниками
+                                </button>
+                            </h2>
+                            <div id="stepThree" class="accordion-collapse collapse" aria-labelledby="stepThreeHeading" data-bs-parent="#instructionAccordion">
+                                <div class="accordion-body">
+                                    Чтобы добавить или редактировать сотрудников, перейдите в раздел <strong>Сотрудники</strong>. Здесь вы можете создать профиль нового сотрудника, редактировать его информацию и назначить на конкретный отдел.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Шаг 4 -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="stepFourHeading">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#stepFour" aria-expanded="false" aria-controls="stepFour">
+                                    Шаг 4: Управление оборудованием
+                                </button>
+                            </h2>
+                            <div id="stepFour" class="accordion-collapse collapse" aria-labelledby="stepFourHeading" data-bs-parent="#instructionAccordion">
+                                <div class="accordion-body">
+                                    В разделе <strong>Оборудование</strong> можно добавлять новое оборудование для отделов или сотрудников. Выберите тип оборудования (например, компьютер, монитор) и назначьте его к отделу или сотруднику.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Кнопка возврата -->
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                        <a asp-controller="Office" asp-action="Index" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left-circle"></i> Назад на главную
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+}

@@ -1,0 +1,226 @@
+﻿@model CompanyApp.Application.DTOs.ComputerDto
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0 rounded-3">
+                <div class="card-body">
+                    <!-- Заголовок -->
+                    <h2 class="card-title mb-4" style="color: #158e3a;">Редактирование компьютера</h2>
+
+                    <!-- Форма редактирования -->
+                    <form asp-action="Edit" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="Id" />
+                        <input type="hidden" asp-for="EmployeeId" />
+
+                        <!-- Поле для модели -->
+                        <div class="mb-3">
+                            <label asp-for="Model" class="form-label">Модель</label>
+                            <input asp-for="Model" class="form-control" placeholder="Введите модель компьютера" />
+                            <span asp-validation-for="Model" class="text-danger"></span>
+                        </div>
+
+                        <!-- Поле для процессора -->
+                        <div class="mb-3">
+                            <label asp-for="Processor" class="form-label">Процессор</label>
+                            <input asp-for="Processor" class="form-control" placeholder="Введите процессор" />
+                            <span asp-validation-for="Processor" class="text-danger"></span>
+                        </div>
+
+                        <!-- Поле для ОЗУ -->
+                        <div class="mb-3">
+                            <label asp-for="RAM" class="form-label">ОЗУ</label>
+                            <input asp-for="RAM" class="form-control" placeholder="Введите размер ОЗУ" />
+                            <span asp-validation-for="RAM" class="text-danger"></span>
+                        </div>
+
+                        <!-- Поле для хранилища -->
+                        <div class="mb-3">
+                            <label asp-for="Storage" class="form-label">Хранилище</label>
+                            <input asp-for="Storage" class="form-control" placeholder="Введите размер хранилища" />
+                            <span asp-validation-for="Storage" class="text-danger"></span>
+                        </div>
+
+
+                        <!-- Поле для версии ОС -->
+                        <div class="mb-3">
+                            <label asp-for="OSVersion" class="form-label">Версия ОС</label>
+                            <div class="input-group">
+                                <input asp-for="OSVersion" class="form-control" placeholder="Введите версию ОС" />
+                                <select name="OEMOption" class="form-select">
+                                    <option value="">Выберите</option>
+                                    @foreach (var oem in ViewBag.PossibleOEMs as string[])
+
+                                    {
+
+                                        if (ViewBag.OEMOption == oem)
+
+                                        {
+                                            <option value="@oem" selected="selected">@oem</option>
+                                        }
+
+                                        else
+
+                                        {
+                                            <option value="@oem">@oem</option>
+                                        }
+
+                                    }
+                                </select>
+                            </div>
+                            <span asp-validation-for="OSVersion" class="text-danger"></span>
+                        </div>
+
+                        
+
+                        <!-- Поле для ключа ОС -->
+                        <div class="mb-3">
+                            <label asp-for="OSKey" class="form-label">Ключ для ОС</label>
+                            <input asp-for="OSKey" class="form-control" placeholder="Введите ключ для ОС" />
+                            <span asp-validation-for="OSKey" class="text-danger"></span>
+                        </div>
+
+                        <!-- Поле для версии MS Office -->
+                        <div class="mb-3">
+                            <label asp-for="OfficeVersion" class="form-label">Версия MS Office</label>
+                            <input asp-for="OfficeVersion" class="form-control" placeholder="Введите версию MS Office" />
+                            <span asp-validation-for="OfficeVersion" class="text-danger"></span>
+                        </div>
+
+                        <!-- Поле для ключа MS Office -->
+                        <div class="mb-3">
+                            <label asp-for="OfficeKey" class="form-label">Ключ для MS Office</label>
+                            <input asp-for="OfficeKey" class="form-control" placeholder="Введите ключ для MS Office" />
+                            <span asp-validation-for="OfficeKey" class="text-danger"></span>
+                        </div>
+
+
+                        <!-- Мониторы -->
+                        <div id="monitors">
+                            <h4 class="mb-3">Мониторы</h4>
+                            @for (int i = 0; i < Model.Monitors.Count; i++)
+
+                            {
+                                <div class="mb-3 monitor-item" data-index="@i" id="monitor-@i">
+                                    <label asp-for="Monitors[@i].Model" class="form-label">Модель монитора</label>
+                                    <input asp-for="Monitors[@i].Model" class="form-control" />
+                                    <label asp-for="Monitors[@i].Resolution" class="form-label">Разрешение</label>
+                                    <input asp-for="Monitors[@i].Resolution" class="form-control" />
+                                    <input type="hidden" name="Monitors[@i].Id" value="@Model.Monitors[@i].Id" />
+                                    <button type="button" class="btn btn-danger mt-2" onclick="removeMonitor(@i)">Удалить монитор</button>
+                                </div>
+                            }
+                        </div>
+
+
+
+                        <!-- Кнопки управления -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="button" class="btn btn-outline-primary me-2" onclick="addMonitor()">
+                                <i class="fas fa-plus"></i> Добавить монитор
+                            </button>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save"></i> Обновить компьютер
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+    <script>
+        
+
+        function addMonitor() {
+            const monitorsDiv = document.getElementById("monitors");
+
+            // Создаем новый индекс на основе текущего количества мониторов
+            const monitorItems = monitorsDiv.getElementsByClassName("monitor-item");
+            const index = monitorItems.length;
+
+            const newMonitor = document.createElement("div");
+            newMonitor.classList.add("mb-3", "monitor-item");
+            newMonitor.setAttribute("data-index", index);
+            newMonitor.setAttribute("id", "monitor-" + index);
+
+            newMonitor.innerHTML = `
+                <label for="Monitors_${index}__Model" class="form-label">Модель монитора</label>
+                <input type="text" name="Monitors[${index}].Model" id="Monitors_${index}__Model" class="form-control" />
+                <label for="Monitors_${index}__Resolution" class="form-label">Разрешение</label>
+                <input type="text" name="Monitors[${index}].Resolution" id="Monitors_${index}__Resolution" class="form-control" />
+                <input type="hidden" name="Monitors[${index}].Id" value="0" />
+                <button type="button" class="btn btn-danger mt-2" onclick="removeMonitor(${index})">Удалить монитор</button>
+            `;
+
+            monitorsDiv.appendChild(newMonitor);
+        }
+
+
+        function deleteMonitor(monitorId) {
+            if (confirm("Вы уверены, что хотите удалить этот монитор?")) {
+                $.ajax({
+                    url: '@Url.Action("DeleteMonitor", "Computer")',
+                    type: 'POST',
+                    data: { monitorId: monitorId },
+                    success: function (response) {
+                        if (response.success) {
+                            // Удаляем элемент из DOM
+                            var monitorDiv = document.getElementById('monitor-' + monitorId);
+                            monitorDiv.remove();
+                        } else {
+                            alert(response.message);
+                        }
+                    },
+                    error: function () {
+                        alert("Произошла ошибка при удалении монитора.");
+                    }
+                });
+            }
+        }
+
+        function removeMonitor(index) {
+            const monitorDiv = document.getElementById('monitor-' + index);
+            monitorDiv.remove();
+
+            // После удаления обновляем индексы оставшихся мониторов
+            updateMonitorIndices();
+        }
+
+        function updateMonitorIndices() {
+            const monitorsDiv = document.getElementById("monitors");
+            const monitorItems = monitorsDiv.getElementsByClassName("monitor-item");
+
+            for (let i = 0; i < monitorItems.length; i++) {
+                const monitorDiv = monitorItems[i];
+                monitorDiv.setAttribute("data-index", i);
+                monitorDiv.setAttribute("id", "monitor-" + i);
+
+                // Обновляем имена и идентификаторы полей
+                const inputs = monitorDiv.getElementsByTagName("input");
+                for (let input of inputs) {
+                    const name = input.getAttribute("name");
+                    const newName = name.replace(/Monitors\[\d+\]/, `Monitors[${i}]`);
+                    input.setAttribute("name", newName);
+
+                    const id = input.getAttribute("id");
+                    if (id) {
+                        const newId = id.replace(/Monitors_\d+__/, `Monitors_${i}__`);
+                        input.setAttribute("id", newId);
+                    }
+                }
+
+                // Обновляем onclick для кнопки удаления
+                const deleteButton = monitorDiv.querySelector("button.btn-danger");
+                deleteButton.setAttribute("onclick", `removeMonitor(${i})`);
+            }
+        }
+
+
+    </script>
+}

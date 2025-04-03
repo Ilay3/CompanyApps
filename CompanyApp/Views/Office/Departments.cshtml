@@ -1,0 +1,87 @@
+﻿@model IEnumerable<CompanyApp.Application.DTOs.DepartmentDto>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0 rounded-3">
+                <div class="card-body">
+                    <!-- Заголовок -->
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="card-title text-success">Список отделов</h2>
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left-circle"></i> Назад
+                        </a>
+                    </div>
+
+                    <hr style="height: 0px;" />
+
+                    <!-- Таблица с отделами -->
+                    <table class="table table-hover mt-3">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Название</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.Any())
+                            {
+                                @foreach (var department in Model)
+                                {
+                                    <tr class="clickable-row" data-href="@Url.Action("Details", "Department", new { id = department.Id })">
+                                        <td>
+                                            <i class="bi bi-diagram-3-fill text-success me-2"></i>@department.Name
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td class="text-center text-muted">Отделы отсутствуют.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+    <script>
+        // Скрипт для перехода по клику на строку таблицы
+        document.addEventListener('DOMContentLoaded', function () {
+            const rows = document.querySelectorAll('.clickable-row');
+
+            rows.forEach(row => {
+                row.addEventListener('click', function () {
+                    window.location.href = this.dataset.href;
+                });
+            });
+        });
+    </script>
+}
+
+<style>
+    .clickable-row {
+        cursor: pointer;
+    }
+
+        .clickable-row:hover {
+            background-color: #f8f9fa;
+        }
+
+    .table th, .table td {
+        padding: 1rem;
+    }
+
+    .table i {
+        font-size: 1.2rem;
+    }
+
+    .card {
+        background-color: #f8f9fa;
+    }
+</style>

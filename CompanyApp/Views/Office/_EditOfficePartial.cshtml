@@ -1,0 +1,35 @@
+﻿@model CompanyApp.Application.DTOs.OfficeDto
+
+<div class="mt-1">
+    <div class="row justify-content-center">
+        <div class="md-1">
+            <div >
+                <form asp-action="Edit" asp-route-id="@Model.Id" method="post" id="edit-office-form">
+                    <div class="mb-3">
+                        <label asp-for="Name" class="form-label">Название предприятия</label>
+                        <input asp-for="Name" class="form-control" required />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-5">
+                        <label asp-for="City" class="form-label">Город</label>
+                        <input asp-for="City" class="form-control" required />
+                        <span asp-validation-for="City" class="text-danger"></span>
+                    </div>
+
+                    <button type="submit" class="btn btn-success w-100" style="background-color: #158e3a; border-color: #158e3a;">
+                        Сохранить изменения
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/js/office-edit.js"></script>
+
+<style>
+    .form-control:focus {
+        border-color: #158e3a;
+        box-shadow: 0 0 0 0.2rem rgba(21, 142, 58, 0.25);
+    }
+</style>
