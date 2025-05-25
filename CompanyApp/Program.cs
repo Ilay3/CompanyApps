@@ -69,6 +69,29 @@ builder.Services.AddScoped<IReportService, ReportService>();
 
 var app = builder.Build();
 
+// Инициализация ролей и администратора при запуске
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<OfficeDbContext>();
+        var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
+        var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+
+        // Применяем миграции
+        await context.Database.MigrateAsync();
+
+        // Инициализируем роли и админа
+        await InitializeRolesAndAdmin(userManager, roleManager);
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Ошибка при инициализации базы данных");
+    }
+}
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
@@ -89,3 +112,42 @@ app.MapControllerRoute(
     pattern: "{controller=Office}/{action=Index}/{id?}");
 
 app.Run();
+
+// Метод инициализации ролей и администратора
+async Task InitializeRolesAndAdmin(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
+{
+    // Создаем роли
+    string[] roleNames = { "SysAdmin", "Manager", "Accountant", "User" };
+
+    foreach (var roleName in roleNames)
+    {
+        var roleExist = await roleManager.RoleExistsAsync(roleName);
+        if (!roleExist)
+        {
+            await roleManager.CreateAsync(new IdentityRole(roleName));
+        }
+    }
+
+    // Создаем администратора по умолчанию
+    var adminEmail = "admin@company.com";
+    var adminUser = await userManager.FindByEmailAsync(adminEmail);
+
+    if (adminUser == null)
+    {
+        var admin = new ApplicationUser
+        {
+            UserName = adminEmail,
+            Email = adminEmail,
+            EmailConfirmed = true,
+            FullName = "Системный администратор",
+            CreatedAt = DateTime.Now,
+            IsActive = true
+        };
+
+        var result = await userManager.CreateAsync(admin, "Admin123!");
+        if (result.Succeeded)
+        {
+            await userManager.AddToRoleAsync(admin, "SysAdmin");
+        }
+    }
+}
