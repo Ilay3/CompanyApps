@@ -59,6 +59,17 @@ namespace CompanyApp.Application.Mappings
                 .ForMember(dest => dest.Equipment, opt => opt.MapFrom(src => src.Equipment));
             CreateMap<MaintenanceRecordDto, MaintenanceRecord>();
             CreateMap<CreateMaintenanceRecordDto, MaintenanceRecord>();
+
+            // Маппинг для системы заявок
+            CreateMap<ServiceRequest, ServiceRequestDto>()
+                .ForMember(dest => dest.CreatedByUserName, opt => opt.MapFrom(src => src.CreatedByUser.FullName ?? src.CreatedByUser.UserName))
+                .ForMember(dest => dest.AssignedToUserName, opt => opt.MapFrom(src => src.AssignedToUser != null ? (src.AssignedToUser.FullName ?? src.AssignedToUser.UserName) : null));
+
+            CreateMap<ServiceRequestStatusHistory, ServiceRequestStatusHistoryDto>()
+                .ForMember(dest => dest.ChangedByUserName, opt => opt.MapFrom(src => src.ChangedByUser.FullName ?? src.ChangedByUser.UserName));
+
+            CreateMap<ServiceRequestComment, ServiceRequestCommentDto>()
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.FullName ?? src.User.UserName));
         }
     }
 }

@@ -1,0 +1,97 @@
+﻿@model CompanyApp.Application.DTOs.CreateServiceRequestDto
+
+@{
+    ViewData["Title"] = "Создание заявки";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0 rounded-3">
+                <div class="card-body">
+                    <h2 class="card-title mb-4" style="color: #158e3a;">Создание заявки на обслуживание</h2>
+
+                    <form asp-action="Create" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="Title" class="form-label">Тема заявки</label>
+                            <input asp-for="Title" class="form-control" placeholder="Кратко опишите проблему" />
+                            <span asp-validation-for="Title" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="Description" class="form-label">Описание проблемы</label>
+                            <textarea asp-for="Description" class="form-control" rows="5" placeholder="Подробно опишите проблему"></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="RequestType" class="form-label">Тип заявки</label>
+                                    <select asp-for="RequestType" class="form-select" asp-items="ViewBag.RequestTypes">
+                                        <option value="">Выберите тип</option>
+                                    </select>
+                                    <span asp-validation-for="RequestType" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Priority" class="form-label">Приоритет</label>
+                                    <select asp-for="Priority" class="form-select" asp-items="ViewBag.Priorities">
+                                    </select>
+                                    <span asp-validation-for="Priority" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row" id="equipmentSection" style="display: none;">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="ComputerId" class="form-label">Компьютер (если применимо)</label>
+                                    <select asp-for="ComputerId" class="form-select">
+                                        <option value="">Выберите компьютер</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="EquipmentId" class="form-label">Оборудование (если применимо)</label>
+                                    <select asp-for="EquipmentId" class="form-select">
+                                        <option value="">Выберите оборудование</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-check-circle"></i> Создать заявку
+                            </button>
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Отмена
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.getElementById('RequestType').addEventListener('change', function () {
+            var equipmentSection = document.getElementById('equipmentSection');
+            if (this.value === 'Computer' || this.value === 'Equipment') {
+                equipmentSection.style.display = 'block';
+            } else {
+                equipmentSection.style.display = 'none';
+            }
+        });
+    </script>
+}

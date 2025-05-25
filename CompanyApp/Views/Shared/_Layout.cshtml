@@ -92,7 +92,32 @@
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link main-item" id="nav-requests" href="@Url.Action("Index", "ServiceRequest")">
+                            <i class="bi bi-clipboard-check me-1"></i> Заявки
+                        </a>
+                    </li>
 
+                    @if (User.IsInRole("SysAdmin") || User.IsInRole("Manager") || User.IsInRole("Accountant"))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link main-item" id="nav-reports" href="@Url.Action("Index", "Report")">
+                                <i class="bi bi-bar-chart me-1"></i> Отчеты
+                            </a>
+                        </li>
+                    }
+
+                    @if (User.IsInRole("SysAdmin"))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link main-item" id="nav-users" href="@Url.Action("Users", "Account")">
+                                <i class="bi bi-people me-1"></i> Пользователи
+                            </a>
+                        </li>
+                    }
+                }
                 <!-- Ссылки по центру -->
                 <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
                     <ul class="navbar-nav">
@@ -122,6 +147,37 @@
                                 <i class="bi bi-info-circle me-1"></i> О приложении
                             </a>
                         </li>
+                    </ul>
+                </div>
+                <div class="collapse navbar-collapse justify-content-end" id="navbarUser">
+                    <ul class="navbar-nav">
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                                    <i class="bi bi-person-circle me-1"></i> @User.Identity.Name
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" href="@Url.Action("Profile", "Account")">Профиль</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <form asp-controller="Account" asp-action="Logout" method="post">
+                                            <button type="submit" class="dropdown-item">
+                                                <i class="bi bi-box-arrow-right me-1"></i> Выход
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" href="@Url.Action("Login", "Account")">
+                                    <i class="bi bi-box-arrow-in-right me-1"></i> Вход
+                                </a>
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>

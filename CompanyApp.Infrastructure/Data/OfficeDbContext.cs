@@ -1,16 +1,10 @@
 ﻿using CompanyApp.Core.Entities;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Emit;
-using System.Text;
-using System.Threading.Tasks;
-
 
 namespace CompanyApp.Infrastructure.Data
 {
-    public class OfficeDbContext : DbContext
+    public class OfficeDbContext : IdentityDbContext<ApplicationUser>
     {
         public DbSet<Office> Offices { get; set; }
         public DbSet<Building> Buildings { get; set; }
@@ -19,16 +13,19 @@ namespace CompanyApp.Infrastructure.Data
         public DbSet<Equipment> Equipments { get; set; }
         public DbSet<Computer> Computers { get; set; }
         public DbSet<DisplayMonitor> DisplayMonitors { get; set; }
-
-        // Новые DbSets для программного обеспечения и ТО
         public DbSet<SoftwareLicense> SoftwareLicenses { get; set; }
         public DbSet<ComputerSoftware> ComputerSoftware { get; set; }
         public DbSet<MaintenanceRecord> MaintenanceRecords { get; set; }
+        public DbSet<ServiceRequest> ServiceRequests { get; set; }
+        public DbSet<ServiceRequestStatusHistory> ServiceRequestStatusHistories { get; set; }
+        public DbSet<ServiceRequestComment> ServiceRequestComments { get; set; }
 
         public OfficeDbContext(DbContextOptions<OfficeDbContext> options) : base(options) { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
             // Существующие отношения
             modelBuilder.Entity<Office>()
                 .HasMany(o => o.Buildings)
@@ -65,8 +62,6 @@ namespace CompanyApp.Infrastructure.Data
                 .WithOne(m => m.Computer)
                 .HasForeignKey(m => m.ComputerId);
 
-            // Новые отношения
-
             // Отношение Many-to-Many между Computer и SoftwareLicense через ComputerSoftware
             modelBuilder.Entity<ComputerSoftware>()
                 .HasOne(cs => cs.Computer)
@@ -83,13 +78,69 @@ namespace CompanyApp.Infrastructure.Data
                 .HasOne(mr => mr.Computer)
                 .WithMany()
                 .HasForeignKey(mr => mr.ComputerId)
-                .IsRequired(false); // Допускается отсутствие связи с компьютером
+                .IsRequired(false);
 
             modelBuilder.Entity<MaintenanceRecord>()
                 .HasOne(mr => mr.Equipment)
                 .WithMany()
                 .HasForeignKey(mr => mr.EquipmentId)
-                .IsRequired(false); // Допускается отсутствие связи с оборудованием
+                .IsRequired(false);
+
+            // Настройка отношений для ServiceRequest
+            modelBuilder.Entity<ServiceRequest>()
+                .HasOne(sr => sr.CreatedByUser)
+                .WithMany(u => u.CreatedRequests)
+                .HasForeignKey(sr => sr.CreatedByUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ServiceRequest>()
+                .HasOne(sr => sr.AssignedToUser)
+                .WithMany(u => u.AssignedRequests)
+                .HasForeignKey(sr => sr.AssignedToUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ServiceRequest>()
+                .HasOne(sr => sr.Computer)
+                .WithMany()
+                .HasForeignKey(sr => sr.ComputerId)
+                .IsRequired(false);
+
+            modelBuilder.Entity<ServiceRequest>()
+                .HasOne(sr => sr.Equipment)
+                .WithMany()
+                .HasForeignKey(sr => sr.EquipmentId)
+                .IsRequired(false);
+
+            // Настройка отношений для истории статусов
+            modelBuilder.Entity<ServiceRequestStatusHistory>()
+                .HasOne(h => h.ServiceRequest)
+                .WithMany(sr => sr.StatusHistories)
+                .HasForeignKey(h => h.ServiceRequestId);
+
+            modelBuilder.Entity<ServiceRequestStatusHistory>()
+                .HasOne(h => h.ChangedByUser)
+                .WithMany()
+                .HasForeignKey(h => h.ChangedByUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Настройка отношений для комментариев
+            modelBuilder.Entity<ServiceRequestComment>()
+                .HasOne(c => c.ServiceRequest)
+                .WithMany(sr => sr.Comments)
+                .HasForeignKey(c => c.ServiceRequestId);
+
+            modelBuilder.Entity<ServiceRequestComment>()
+                .HasOne(c => c.User)
+                .WithMany()
+                .HasForeignKey(c => c.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Связь ApplicationUser с Employee
+            modelBuilder.Entity<ApplicationUser>()
+                .HasOne(u => u.Employee)
+                .WithMany()
+                .HasForeignKey(u => u.EmployeeId)
+                .IsRequired(false);
         }
     }
 }

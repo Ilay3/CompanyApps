@@ -1,0 +1,227 @@
+﻿@model CompanyApp.Application.DTOs.ServiceRequestDto
+
+@{
+    ViewData["Title"] = "Детали заявки";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card shadow-sm border-0 rounded-3">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="card-title" style="color: #158e3a;">Заявка №@Model.Id</h2>
+                        <div>
+                            @if (User.IsInRole("SysAdmin") || User.IsInRole("Manager"))
+                            {
+                                <a asp-action="UpdateStatus" asp-route-id="@Model.Id" class="btn btn-primary">
+                                    <i class="bi bi-pencil"></i> Изменить статус
+                                </a>
+
+                                if (Model.AssignedToUserId == null)
+                                {
+                                    <a asp-action="Assign" asp-route-id="@Model.Id" class="btn btn-success">
+                                        <i class="bi bi-person-plus"></i> Назначить
+                                    </a>
+                                }
+                            }
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Назад
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="card bg-light mb-3">
+                                <div class="card-header">
+                                    <h5 class="mb-0">@Model.Title</h5>
+                                </div>
+                                <div class="card-body">
+                                    <p>@Model.Description</p>
+
+                                    <div class="row mt-3">
+                                        <div class="col-md-6">
+                                            <strong>Тип:</strong>
+                                            @switch (Model.RequestType)
+                                            {
+                                                case "Computer":
+                                                    <span class="badge bg-info">Компьютер</span>
+                                                    break;
+                                                case "Equipment":
+                                                    <span class="badge bg-warning">Оборудование</span>
+                                                    break;
+                                                case "Software":
+                                                    <span class="badge bg-primary">ПО</span>
+                                                    break;
+                                                default:
+                                                    <span class="badge bg-secondary">Другое</span>
+                                                    break;
+                                            }
+                                        </div>
+                                        <div class="col-md-6">
+                                            <strong>Приоритет:</strong>
+                                            @switch (Model.Priority)
+                                            {
+                                                case "Critical":
+                                                    <span class="badge bg-danger">Критический</span>
+                                                    break;
+                                                case "High":
+                                                    <span class="badge bg-warning">Высокий</span>
+                                                    break;
+                                                case "Medium":
+                                                    <span class="badge bg-info">Средний</span>
+                                                    break;
+                                                default:
+                                                    <span class="badge bg-secondary">Низкий</span>
+                                                    break;
+                                            }
+                                        </div>
+                                    </div>
+
+                                    @if (Model.Computer != null)
+                                    {
+                                        <div class="mt-3">
+                                            <strong>Компьютер:</strong>
+                                            <a asp-controller="Computer" asp-action="Details" asp-route-id="@Model.ComputerId">
+                                                @Model.Computer.Model - @Model.Computer.UniqueIdentifier
+                                            </a>
+                                        </div>
+                                    }
+
+                                    @if (Model.Equipment != null)
+                                    {
+                                        <div class="mt-3">
+                                            <strong>Оборудование:</strong>
+                                            <a asp-controller="Equipment" asp-action="Details" asp-route-id="@Model.EquipmentId">
+                                                @Model.Equipment.Type - @Model.Equipment.Model
+                                            </a>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+
+                            <!-- История изменений -->
+                            <div class="card bg-light mb-3">
+                                <div class="card-header">
+                                    <h5 class="mb-0">История изменений</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="timeline">
+                                        @foreach (var history in Model.StatusHistories.OrderByDescending(h => h.ChangedDate))
+                                        {
+                                            <div class="timeline-item mb-3">
+                                                <div class="d-flex justify-content-between">
+                                                    <div>
+                                                        <strong>@history.ChangedByUserName</strong>
+                                                        изменил статус с
+                                                        <span class="badge bg-secondary">@history.OldStatus</span>
+                                                        на
+                                                        <span class="badge bg-primary">@history.NewStatus</span>
+                                                    </div>
+                                                    <small class="text-muted">@history.ChangedDate.ToString("dd.MM.yyyy HH:mm")</small>
+                                                </div>
+                                                @if (!string.IsNullOrEmpty(history.Reason))
+                                                {
+                                                    <div class="mt-2">
+                                                        <strong>Причина:</strong> @history.Reason
+                                                    </div>
+                                                }
+                                                @if (!string.IsNullOrEmpty(history.Resolution))
+                                                {
+                                                    <div class="mt-2">
+                                                        <strong>Решение:</strong> @history.Resolution
+                                                    </div>
+                                                }
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Комментарии -->
+                            <div class="card bg-light">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Комментарии</h5>
+                                </div>
+                                <div class="card-body">
+                                    @foreach (var comment in Model.Comments.OrderByDescending(c => c.CreatedDate))
+                                    {
+                                        <div class="comment mb-3 p-3 bg-white rounded">
+                                            <div class="d-flex justify-content-between">
+                                                <strong>@comment.UserName</strong>
+                                                <small class="text-muted">@comment.CreatedDate.ToString("dd.MM.yyyy HH:mm")</small>
+                                            </div>
+                                            <div class="mt-2">@comment.Comment</div>
+                                        </div>
+                                    }
+
+                                    <form asp-action="AddComment" method="post" class="mt-3">
+                                        <input type="hidden" name="ServiceRequestId" value="@Model.Id" />
+                                        <div class="form-group">
+                                            <textarea name="Comment" class="form-control" rows="3" placeholder="Добавить комментарий"></textarea>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary mt-2">
+                                            <i class="bi bi-send"></i> Отправить
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="card bg-light">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Информация</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <strong>Статус:</strong><br />
+                                        @switch (Model.Status)
+                                        {
+                                            case "New":
+                                                <span class="badge bg-primary">Новая</span>
+                                                break;
+                                            case "InProgress":
+                                                <span class="badge bg-warning">В работе</span>
+                                                break;
+                                            case "Resolved":
+                                                <span class="badge bg-success">Решена</span>
+                                                break;
+                                            case "Closed":
+                                                <span class="badge bg-secondary">Закрыта</span>
+                                                break;
+                                        }
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <strong>Создатель:</strong><br />
+                                        @Model.CreatedByUserName
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <strong>Исполнитель:</strong><br />
+                                        @(Model.AssignedToUserName ?? "Не назначен")
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <strong>Дата создания:</strong><br />
+                                        @Model.CreatedDate.ToString("dd.MM.yyyy HH:mm")
+                                    </div>
+
+                                    @if (Model.ResolvedDate.HasValue)
+                                    {
+                                        <div class="mb-3">
+                                            <strong>Дата решения:</strong><br />
+                                            @Model.ResolvedDate.Value.ToString("dd.MM.yyyy HH:mm")
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

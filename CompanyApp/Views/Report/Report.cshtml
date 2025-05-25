@@ -1,0 +1,132 @@
+﻿@model CompanyApp.Application.DTOs.EquipmentReportDto
+
+@{
+    ViewData["Title"] = "Отчет по оборудованию";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card shadow-sm border-0 rounded-3">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="card-title" style="color: #158e3a;">Отчет по оборудованию</h2>
+                        <div>
+                            <a asp-action="ExportPdf" asp-route-startDate="@Model.StartDate" asp-route-endDate="@Model.EndDate"
+                               class="btn btn-danger">
+                                <i class="bi bi-file-earmark-pdf"></i> Экспорт в PDF
+                            </a>
+                            <a asp-action="ExportExcel" asp-route-startDate="@Model.StartDate" asp-route-endDate="@Model.EndDate"
+                               class="btn btn-success">
+                                <i class="bi bi-file-earmark-excel"></i> Экспорт в Excel
+                            </a>
+                        </div>
+                    </div>
+
+                    <p><strong>Период:</strong> @Model.Period</p>
+
+                    <!-- Статистика по заявкам -->
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="card bg-primary text-white">
+                                <div class="card-body">
+                                    <h5 class="card-title">Всего заявок</h5>
+                                    <h2>@Model.ServiceRequestStatistics.TotalRequests</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-success text-white">
+                                <div class="card-body">
+                                    <h5 class="card-title">Решено</h5>
+                                    <h2>@Model.ServiceRequestStatistics.ResolvedRequests</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-warning text-white">
+                                <div class="card-body">
+                                    <h5 class="card-title">В работе</h5>
+                                    <h2>@Model.ServiceRequestStatistics.PendingRequests</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-info text-white">
+                                <div class="card-body">
+                                    <h5 class="card-title">Ср. время решения</h5>
+                                    <h2>@Model.ServiceRequestStatistics.AverageResolutionTime.ToString("F1") ч</h2>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Частые поломки -->
+                    @if (Model.FrequentBreakdowns.Any())
+                    {
+                        <h3 class="mt-4">Оборудование с частыми поломками</h3>
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Тип</th>
+                                        <th>Модель</th>
+                                        <th>Идентификатор</th>
+                                        <th>Количество поломок</th>
+                                        <th>Проблемы</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var breakdown in Model.FrequentBreakdowns)
+                                    {
+                                        <tr>
+                                            <td>@breakdown.EquipmentType</td>
+                                            <td>@breakdown.EquipmentModel</td>
+                                            <td>@breakdown.EquipmentIdentifier</td>
+                                            <td>@breakdown.BreakdownCount</td>
+                                            <td>
+                                                <ul>
+                                                    @foreach (var issue in breakdown.CommonIssues.Take(3))
+                                                    {
+                                                        <li>@issue</li>
+                                                    }
+                                                </ul>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+
+                    <!-- Причины поломок -->
+                    @if (Model.BreakdownReasons.Any())
+                    {
+                        <h3 class="mt-4">Распределение причин поломок</h3>
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Причина</th>
+                                        <th>Количество</th>
+                                        <th>Процент</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var reason in Model.BreakdownReasons)
+                                    {
+                                        <tr>
+                                            <td>@reason.Reason</td>
+                                            <td>@reason.Count</td>
+                                            <td>@reason.Percentage.ToString("F2")%</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,71 @@
+﻿@using CompanyApp.Application.DTOs
+@model CompanyApp.Application.DTOs.UpdateServiceRequestStatusDto
+
+@{
+    ViewData["Title"] = "Изменение статуса заявки";
+    var request = ViewBag.Request as ServiceRequestDto;
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0 rounded-3">
+                <div class="card-body">
+                    <h2 class="card-title mb-4" style="color: #158e3a;">Изменение статуса заявки №@request.Id</h2>
+
+                    <div class="alert alert-info mb-4">
+                        <strong>Тема:</strong> @request.Title<br />
+                        <strong>Текущий статус:</strong> @request.Status
+                    </div>
+
+                    <form asp-action="UpdateStatus" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <input type="hidden" asp-for="ServiceRequestId" />
+
+                        <div class="form-group mb-3">
+                            <label asp-for="NewStatus" class="form-label">Новый статус</label>
+                            <select asp-for="NewStatus" class="form-select" asp-items="ViewBag.Statuses">
+                            </select>
+                            <span asp-validation-for="NewStatus" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="Reason" class="form-label">Причина изменения</label>
+                            <textarea asp-for="Reason" class="form-control" rows="3" placeholder="Укажите причину изменения статуса"></textarea>
+                            <span asp-validation-for="Reason" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3" id="resolutionSection" style="display: none;">
+                            <label asp-for="Resolution" class="form-label">Описание решения</label>
+                            <textarea asp-for="Resolution" class="form-control" rows="5" placeholder="Опишите, как была решена проблема"></textarea>
+                            <span asp-validation-for="Resolution" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-check-circle"></i> Сохранить
+                            </button>
+                            <a asp-action="Details" asp-route-id="@Model.ServiceRequestId" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Отмена
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.getElementById('NewStatus').addEventListener('change', function () {
+            var resolutionSection = document.getElementById('resolutionSection');
+            if (this.value === 'Resolved' || this.value === 'Closed') {
+                resolutionSection.style.display = 'block';
+            } else {
+                resolutionSection.style.display = 'none';
+            }
+        });
+    </script>
+}
