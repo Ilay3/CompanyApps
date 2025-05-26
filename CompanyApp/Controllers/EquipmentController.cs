@@ -6,7 +6,7 @@ using CompanyApp.Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace CompanyApp.API.Controllers
+namespace CompanyApp.Controllers
 {
     public class EquipmentController : Controller
     {

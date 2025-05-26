@@ -1,4 +1,4 @@
-﻿namespace CompanyApp.API.Models
+﻿namespace CompanyApp.Models
 {
     public class OfficeDashboardViewModel
     {

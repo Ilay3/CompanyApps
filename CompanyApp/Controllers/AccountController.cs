@@ -7,7 +7,6 @@ using CompanyApp.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using CompanyApp.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
-using CompanyApp.API.Controllers;
 
 namespace CompanyApp.Controllers
 {

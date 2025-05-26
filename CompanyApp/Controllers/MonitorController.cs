@@ -2,7 +2,7 @@
 using CompanyApp.Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
-namespace CompanyApp.API.Controllers
+namespace CompanyApp.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]

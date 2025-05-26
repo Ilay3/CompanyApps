@@ -13,7 +13,7 @@ using PdfSharpCore.Pdf;
 
 
 
-namespace CompanyApp.API.Controllers
+namespace CompanyApp.Controllers
 {
     public class ComputerController : Controller
     {

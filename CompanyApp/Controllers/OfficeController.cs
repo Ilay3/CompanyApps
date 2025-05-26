@@ -1,11 +1,11 @@
-﻿using CompanyApp.API.Models;
-using CompanyApp.Application.DTOs;
+﻿using CompanyApp.Application.DTOs;
 using CompanyApp.Core.Interfaces;
 using CompanyApp.Infrastructure.Data;
+using CompanyApp.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace CompanyApp.API.Controllers
+namespace CompanyApp.Controllers
 {
     public class OfficeController : Controller
     {

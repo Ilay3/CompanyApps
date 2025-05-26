@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using PdfSharpCore.Drawing;
 using PdfSharpCore.Pdf;
 
-namespace CompanyApp.API.Controllers
+namespace CompanyApp.Controllers
 {
     public class DepartmentController : Controller
     {

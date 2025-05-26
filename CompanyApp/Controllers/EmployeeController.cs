@@ -6,7 +6,7 @@ using CompanyApp.Infrastructure.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace CompanyApp.API.Controllers
+namespace CompanyApp.Controllers
 {
     public class EmployeeController : Controller
     {

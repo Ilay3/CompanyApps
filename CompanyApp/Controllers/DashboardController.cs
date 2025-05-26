@@ -1,8 +1,8 @@
-﻿using CompanyApp.API.Models;
-using CompanyApp.Application.DTOs;
+﻿using CompanyApp.Application.DTOs;
 using CompanyApp.Application.InterfacesService;
 using CompanyApp.Core.Interfaces;
 using CompanyApp.Infrastructure.Data;
+using CompanyApp.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -10,7 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace CompanyApp.API.Controllers
+namespace CompanyApp.Controllers
 {
     public class DashboardController : Controller
     {
