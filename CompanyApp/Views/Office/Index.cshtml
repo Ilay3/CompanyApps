@@ -1,124 +1,175 @@
 ﻿@model List<CompanyApp.Models.OfficeDashboardViewModel>
 
-<style>
-
-
-    /* Увеличиваем карточки и добавляем плавные эффекты */
-    .card {
-        margin-bottom: 1.5rem;
-        transition: all 0.3s ease-in-out;
-    }
-
-    .card:hover {
-        transform: translateY(-5px); /* Легкий подъем при наведении */
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15); /* Тень при наведении */
-    }
-
-    /* Стили для кнопок */
-    .custom-btn {
-        transition: background-color 0.3s ease, color 0.3s ease;
-    }
-
-        .custom-btn:hover {
-            background-color: #158e3a;
-            color: white; /* Белый текст при наведении */
-        }
-
-    /* Исправление цвета и улучшение отступов */
-    .btn {
-        padding: 0.375rem 1rem;
-    }
-</style>
-
-
-
-
 <div class="container mt-4">
-    <div class="row">
-        <!-- Основная панель слева -->
+    <div class="text-center mb-5 animate-fade-in-up">
+        <h1 class="text-gradient fw-bold">Офисы компании</h1>
+        <p class="text-muted">Управление офисами и их структурой</p>
+    </div>
+
+    <div class="row g-4">
+        <!-- Основные офисы -->
         <div class="col-md-8">
-            <div class="row">
-                @foreach (var office in Model)
-                {
-                    <div class="col-md-12 mb-2">
-                        <div class="card shadow-sm border-0 rounded-3">
-                            <div class="card-body">
-                                <h5 class="card-title" style="color: #158e3a;">@office.OfficeName</h5>
-                                
-                                <p class="card-text text-muted">@office.City</p>
-                                <hr style="height: 0px;" />
-                                <!-- Добавляем тень при наведении -->
-                                <div class="d-flex justify-content-start mb-3">
-                                    <a class="btn btn-outline-success custom-btn" style="border-color: #158e3a;" asp-action="Details" asp-route-id="@office.OfficeId">
-                                        <i class="bi bi-building-fill-lock"></i> Подробнее
-                                    </a>
-                                    <a class="btn btn-outline-success custom-btn ms-2" style="border-color: #158e3a;" asp-action="Buildings" asp-route-id="@office.OfficeId">
-                                        <i class="bi bi-building-fill"></i> Навигация
-                                    </a>
-                                    <a class="btn btn-outline-success custom-btn ms-2" style="border-color: #158e3a;" asp-action="GetComputersByOfficeId" asp-controller="Computer" asp-route-officeId="@office.OfficeId">
-                                        <i class="bi bi-pc-display"></i> Компьютеры
-                                    </a>
-                                    <a class="btn btn-outline-success custom-btn ms-2" style="border-color: #158e3a;" asp-action="Create" asp-controller="Department" asp-route-officeId="@office.OfficeId">
-                                        <i class="bi bi-diagram-3-fill"></i> Создать отдел
-                                    </a>
-                                    <button class="btn btn-outline-success custom-btn ms-2" style="border-color: #158e3a; " data-bs-toggle="modal" data-bs-target="#editOfficeModal" onclick="loadEditForm(@office.OfficeId)">
-                                        <i class="bi bi-building-fill-gear"></i> Редактировать
-                                    </button>
+            @foreach (var office in Model)
+            {
+                <div class="card hover-lift mb-4 animate-fade-in-up" style="animation-delay: @(Model.IndexOf(office) * 0.1)s;">
+                    <div class="card-body p-4">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="me-3">
+                                        <div class="d-inline-flex align-items-center justify-content-center rounded-3"
+                                             style="width: 60px; height: 60px; background: linear-gradient(135deg, #007AFF, #5AC8FA);">
+                                            <i class="bi bi-building-fill text-white" style="font-size: 1.5rem;"></i>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-gradient mb-1">@office.OfficeName</h4>
+                                        <p class="text-muted mb-0"><i class="bi bi-geo-alt me-1"></i>@office.City</p>
+                                    </div>
                                 </div>
 
+                                <!-- Статистика -->
+                                <div class="row g-2">
+                                    <div class="col-6 col-sm-3">
+                                        <div class="text-center p-2 rounded-3" style="background: rgba(0, 122, 255, 0.1);">
+                                            <div class="fw-bold text-primary">@office.DepartmentCount</div>
+                                            <small class="text-muted">Отделы</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 col-sm-3">
+                                        <div class="text-center p-2 rounded-3" style="background: rgba(52, 199, 89, 0.1);">
+                                            <div class="fw-bold text-success">@office.EmployeeCount</div>
+                                            <small class="text-muted">Сотрудники</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 col-sm-3">
+                                        <div class="text-center p-2 rounded-3" style="background: rgba(255, 149, 0, 0.1);">
+                                            <div class="fw-bold text-warning">@office.ComputerCount</div>
+                                            <small class="text-muted">ПК</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 col-sm-3">
+                                        <div class="text-center p-2 rounded-3" style="background: rgba(175, 82, 222, 0.1);">
+                                            <div class="fw-bold" style="color: #AF52DE;">@office.EquipmentCount</div>
+                                            <small class="text-muted">Техника</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="d-grid gap-2">
+                                    <a class="btn btn-primary" asp-action="Details" asp-route-id="@office.OfficeId">
+                                        <i class="bi bi-eye me-1"></i> Подробнее
+                                    </a>
+                                    <a class="btn btn-outline-primary" asp-action="Buildings" asp-route-id="@office.OfficeId">
+                                        <i class="bi bi-diagram-3 me-1"></i> Структура
+                                    </a>
+                                    <div class="btn-group">
+                                        <a class="btn btn-outline-success btn-sm" asp-action="GetComputersByOfficeId" asp-controller="Computer" asp-route-officeId="@office.OfficeId">
+                                            <i class="bi bi-pc-display me-1"></i> ПК
+                                        </a>
+                                        <a class="btn btn-outline-primary btn-sm" asp-action="Create" asp-controller="Department" asp-route-officeId="@office.OfficeId">
+                                            <i class="bi bi-plus me-1"></i> Отдел
+                                        </a>
+                                        @if (User.IsInRole("SysAdmin"))
+                                        {
+                                            <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#editOfficeModal" onclick="loadEditForm(@office.OfficeId)">
+                                                <i class="bi bi-gear"></i>
+                                            </button>
+                                        }
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                }
-            </div>
+                </div>
+            }
         </div>
 
-        <!-- Дашборд справа -->
+        <!-- Боковая панель -->
         <div class="col-md-4">
-            <div class="card shadow-sm border-0 rounded-3">
+            <div class="card hover-lift mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-bar-chart me-2"></i>Общая статистика</h5>
+                </div>
                 <div class="card-body">
-                    <h5 class="card-title text-center" style="color: #158e3a;">Офисная статистика</h5>
-                    <hr />
-                    <ul class="list-group list-group-flush">
-                        @foreach (var office in Model)
-                        {
-                            <li class="list-group-item">
-                                <strong>@office.OfficeName</strong> — @office.City
-                                <ul class="mt-2">
-                                    <li>Количество отделов: <span class="badge bg-primary">@office.DepartmentCount</span></li>
-                                    <li>Количество сотрудников: <span class="badge bg-success">@office.EmployeeCount</span></li>
-                                    <li>Количество компьютеров: <span class="badge bg-info">@office.ComputerCount</span></li>
-                                    <li>Количество орг.техники: <span class="badge bg-warning">@office.EquipmentCount</span></li>
-                                </ul>
-                            </li>
-                        }
-                    </ul>
+                    @{
+                        var totalDepartments = Model.Sum(o => o.DepartmentCount);
+                        var totalEmployees = Model.Sum(o => o.EmployeeCount);
+                        var totalComputers = Model.Sum(o => o.ComputerCount);
+                        var totalEquipment = Model.Sum(o => o.EquipmentCount);
+                    }
+
+                    <div class="text-center mb-4">
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <div class="p-3 rounded-3" style="background: linear-gradient(135deg, #007AFF, #5AC8FA); color: white;">
+                                    <div class="h4 mb-0">@totalDepartments</div>
+                                    <small>Всего отделов</small>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="p-3 rounded-3" style="background: linear-gradient(135deg, #34C759, #30D158); color: white;">
+                                    <div class="h4 mb-0">@totalEmployees</div>
+                                    <small>Всего сотрудников</small>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="p-3 rounded-3" style="background: linear-gradient(135deg, #FF9500, #FF3B30); color: white;">
+                                    <div class="h4 mb-0">@totalComputers</div>
+                                    <small>Всего ПК</small>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="p-3 rounded-3" style="background: linear-gradient(135deg, #AF52DE, #FF2D92); color: white;">
+                                    <div class="h4 mb-0">@totalEquipment</div>
+                                    <small>Всего техники</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
+
+            @if (User.IsInRole("SysAdmin"))
+            {
+                <div class="card hover-lift">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-plus-circle me-2"></i>Быстрые действия</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <a asp-action="Create" class="btn btn-success">
+                                <i class="bi bi-building-add me-1"></i> Новый офис
+                            </a>
+                            <a asp-controller="Account" asp-action="Users" class="btn btn-outline-primary">
+                                <i class="bi bi-people me-1"></i> Пользователи
+                            </a>
+                            <a asp-controller="Report" asp-action="Index" class="btn btn-outline-secondary">
+                                <i class="bi bi-graph-up me-1"></i> Отчеты
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
         </div>
     </div>
 </div>
 
-<!-- Modal -->
-<div class="modal fade" id="editOfficeModal" tabindex="-1" aria-labelledby="editOfficeLabel" aria-hidden="true">
+<!-- Modal для редактирования -->
+<div class="modal fade" id="editOfficeModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="editOfficeLabel">Редактировать офис</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title">Редактировать офис</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
-                <div id="editOfficeFormContainer">
-                    <!-- Здесь будет загружаться форма для редактирования -->
-                </div>
+            <div class="modal-body" id="editOfficeFormContainer">
+                <!-- Форма загружается через AJAX -->
             </div>
         </div>
     </div>
 </div>
 
-
-
 <script src="~/js/office-edit.js"></script>
-
-
-

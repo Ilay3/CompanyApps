@@ -1,123 +1,152 @@
 ﻿@model IEnumerable<CompanyApp.Application.DTOs.ServiceRequestDto>
 
-@{
-    ViewData["Title"] = "Заявки на обслуживание";
-
-}
-
 <div class="container mt-4">
     <div class="row">
         <div class="col-md-12">
-            <div class="card shadow-sm border-0 rounded-3">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h2 class="card-title" style="color: #158e3a;">Заявки на обслуживание</h2>
+            <div class="card hover-lift">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
                         <div>
+                            <h2 class="text-gradient mb-0">Заявки на обслуживание</h2>
+                            <p class="text-muted mb-0">Управление заявками и их статусами</p>
+                        </div>
+                        <div class="d-flex gap-2">
                             <a asp-action="Create" class="btn btn-success">
-                                <i class="bi bi-plus-circle"></i> Новая заявка
+                                <i class="bi bi-plus-circle me-1"></i> Новая заявка
                             </a>
                             @if (User.IsInRole("SysAdmin"))
                             {
-                                <a asp-controller="Report" asp-action="Index" class="btn btn-primary">
-                                    <i class="bi bi-file-earmark-bar-graph"></i> Отчеты
+                                <a asp-controller="Report" asp-action="Index" class="btn btn-outline-primary">
+                                    <i class="bi bi-file-earmark-bar-graph me-1"></i> Отчеты
                                 </a>
                             }
                         </div>
                     </div>
+                </div>
 
+                <div class="card-body p-0">
                     @if (TempData["Success"] != null)
                     {
-                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <div class="alert alert-success alert-dismissible fade show m-3" role="alert">
+                            <i class="bi bi-check-circle me-2"></i>
                             @TempData["Success"]
                             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         </div>
                     }
 
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>№</th>
-                                    <th>Дата</th>
-                                    <th>Тема</th>
-                                    <th>Тип</th>
-                                    <th>Приоритет</th>
-                                    <th>Статус</th>
-                                    <th>Создатель</th>
-                                    <th>Исполнитель</th>
-                                    <th>Действия</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var request in Model)
-                                {
+                    @if (Model.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
                                     <tr>
-                                        <td>@request.Id</td>
-                                        <td>@request.CreatedDate.ToString("dd.MM.yyyy HH:mm")</td>
-                                        <td>@request.Title</td>
-                                        <td>
-                                            @switch (request.RequestType)
-                                            {
-                                                case "Computer":
-                                                    <span class="badge bg-info">Компьютер</span>
-                                                    break;
-                                                case "Equipment":
-                                                    <span class="badge bg-warning">Оборудование</span>
-                                                    break;
-                                                case "Software":
-                                                    <span class="badge bg-primary">ПО</span>
-                                                    break;
-                                                default:
-                                                    <span class="badge bg-secondary">Другое</span>
-                                                    break;
-                                            }
-                                        </td>
-                                        <td>
-                                            @switch (request.Priority)
-                                            {
-                                                case "Critical":
-                                                    <span class="badge bg-danger">Критический</span>
-                                                    break;
-                                                case "High":
-                                                    <span class="badge bg-warning">Высокий</span>
-                                                    break;
-                                                case "Medium":
-                                                    <span class="badge bg-info">Средний</span>
-                                                    break;
-                                                default:
-                                                    <span class="badge bg-secondary">Низкий</span>
-                                                    break;
-                                            }
-                                        </td>
-                                        <td>
-                                            @switch (request.Status)
-                                            {
-                                                case "New":
-                                                    <span class="badge bg-primary">Новая</span>
-                                                    break;
-                                                case "InProgress":
-                                                    <span class="badge bg-warning">В работе</span>
-                                                    break;
-                                                case "Resolved":
-                                                    <span class="badge bg-success">Решена</span>
-                                                    break;
-                                                case "Closed":
-                                                    <span class="badge bg-secondary">Закрыта</span>
-                                                    break;
-                                            }
-                                        </td>
-                                        <td>@request.CreatedByUserName</td>
-                                        <td>@(request.AssignedToUserName ?? "Не назначен")</td>
-                                        <td>
-                                            <a asp-action="Details" asp-route-id="@request.Id" class="btn btn-sm btn-outline-primary">
-                                                <i class="bi bi-eye"></i>
-                                            </a>
-                                        </td>
+                                        <th class="px-4">№</th>
+                                        <th>Дата</th>
+                                        <th>Тема</th>
+                                        <th>Тип</th>
+                                        <th>Приоритет</th>
+                                        <th>Статус</th>
+                                        <th>Создатель</th>
+                                        <th class="text-end px-4">Действия</th>
                                     </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
+                                </thead>
+                                <tbody>
+                                    @foreach (var request in Model)
+                                    {
+                                        <tr class="align-middle">
+                                            <td class="px-4">
+                                                <div class="fw-bold text-primary">#@request.Id</div>
+                                            </td>
+                                            <td>
+                                                <div class="small">@request.CreatedDate.ToString("dd.MM.yyyy")</div>
+                                                <div class="small text-muted">@request.CreatedDate.ToString("HH:mm")</div>
+                                            </td>
+                                            <td>
+                                                <div class="fw-semibold">@request.Title</div>
+                                                <div class="small text-muted">@(request.Description.Length > 50 ? request.Description.Substring(0, 50) + "..." : request.Description)</div>
+                                            </td>
+                                            <td>
+                                                @{
+                                                    var typeData = request.RequestType switch
+                                                    {
+                                                        "Computer" => new { Class = "bg-info", Text = "Компьютер", Icon = "bi-pc-display" },
+                                                        "Equipment" => new { Class = "bg-warning", Text = "Оборудование", Icon = "bi-printer" },
+                                                        "Software" => new { Class = "bg-primary", Text = "ПО", Icon = "bi-code-square" },
+                                                        _ => new { Class = "bg-secondary", Text = "Другое", Icon = "bi-question-circle" }
+                                                    };
+                                                }
+                                                <span class="badge @typeData.Class">
+                                                    <i class="@typeData.Icon me-1"></i>
+                                                    @typeData.Text
+                                                </span>
+                                            </td>
+                                            <td>
+                                                @{
+                                                    var priorityData = request.Priority switch
+                                                    {
+                                                        "Critical" => new { Class = "bg-danger", Text = "Критический", Icon = "bi-exclamation-triangle-fill" },
+                                                        "High" => new { Class = "bg-warning", Text = "Высокий", Icon = "bi-exclamation-circle-fill" },
+                                                        "Medium" => new { Class = "bg-info", Text = "Средний", Icon = "bi-info-circle-fill" },
+                                                        _ => new { Class = "bg-secondary", Text = "Низкий", Icon = "bi-circle-fill" }
+                                                    };
+                                                }
+                                                <span class="badge @priorityData.Class">
+                                                    <i class="@priorityData.Icon me-1"></i>
+                                                    @priorityData.Text
+                                                </span>
+                                            </td>
+                                            <td>
+                                                @{
+                                                    var statusData = request.Status switch
+                                                    {
+                                                        "New" => new { Class = "bg-primary", Text = "Новая", Icon = "bi-plus-circle" },
+                                                        "InProgress" => new { Class = "bg-warning", Text = "В работе", Icon = "bi-gear" },
+                                                        "Resolved" => new { Class = "bg-success", Text = "Решена", Icon = "bi-check-circle" },
+                                                        "Closed" => new { Class = "bg-secondary", Text = "Закрыта", Icon = "bi-x-circle" },
+                                                        _ => new { Class = "bg-secondary", Text = request.Status, Icon = "bi-circle" }
+                                                    };
+                                                }
+                                                <span class="badge @statusData.Class">
+                                                    <i class="@statusData.Icon me-1"></i>
+                                                    @statusData.Text
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="me-2">
+                                                        <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                                                            <i class="bi bi-person-fill text-primary"></i>
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <div class="small fw-semibold">@request.CreatedByUserName</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="text-end px-4">
+                                                <a asp-action="Details" asp-route-id="@request.Id" class="btn btn-outline-primary btn-sm">
+                                                    <i class="bi bi-eye me-1"></i> Детали
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <div class="mb-4">
+                                <i class="bi bi-clipboard-x text-muted" style="font-size: 4rem;"></i>
+                            </div>
+                            <h4 class="text-muted">Заявки отсутствуют</h4>
+                            <p class="text-muted mb-4">Создайте первую заявку на обслуживание</p>
+                            <a asp-action="Create" class="btn btn-primary">
+                                <i class="bi bi-plus-circle me-1"></i> Создать заявку
+                            </a>
+                        </div>
+                    }
                 </div>
             </div>
         </div>

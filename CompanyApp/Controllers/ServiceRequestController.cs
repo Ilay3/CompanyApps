@@ -175,36 +175,7 @@ namespace CompanyApp.Controllers
             return RedirectToAction(nameof(Details), new { id = dto.ServiceRequestId });
         }
 
-        // GET: ServiceRequest/Assign/5
-        [HttpGet("Assign/{id}")]
-        [Authorize(Roles = "SysAdmin")]
-        public async Task<IActionResult> Assign(int id)
-        {
-            var request = await _serviceRequestService.GetServiceRequestByIdAsync(id);
-            if (request == null)
-            {
-                return NotFound();
-            }
-
-            var sysAdmins = await _userManager.GetUsersInRoleAsync("SysAdmin");
-            ViewBag.Request = request;
-            ViewBag.SysAdmins = new SelectList(sysAdmins, "Id", "FullName", request.AssignedToUserId);
-
-            return View();
-        }
-
-        // POST: ServiceRequest/Assign
-        [HttpPost("Assign")]
-        [ValidateAntiForgeryToken]
-        [Authorize(Roles = "SysAdmin")]
-        public async Task<IActionResult> Assign(int id, string assignToUserId)
-        {
-            var user = await _userManager.GetUserAsync(User);
-            await _serviceRequestService.AssignServiceRequestAsync(id, assignToUserId, user.Id);
-
-            TempData["Success"] = "Заявка назначена!";
-            return RedirectToAction(nameof(Details), new { id = id });
-        }
+        
 
         private async Task PrepareCreateViewBag()
         {
