@@ -17,6 +17,7 @@ namespace CompanyApp.Controllers
         }
 
         // GET: Report
+
         public IActionResult Index()
         {
             return View();

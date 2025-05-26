@@ -138,6 +138,110 @@ namespace CompanyApp.Controllers
             return View(userViewModels);
         }
 
+        [HttpGet]
+        [Authorize(Roles = "SysAdmin")]
+        public async Task<IActionResult> EditUser(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+            {
+                return NotFound();
+            }
+
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var roles = await _userManager.GetRolesAsync(user);
+            var employees = await _context.Employees.ToListAsync();
+
+            var model = new EditUserViewModel
+            {
+                Id = user.Id,
+                Email = user.Email,
+                FullName = user.FullName,
+                EmployeeId = user.EmployeeId,
+                IsActive = user.IsActive,
+                CurrentRole = roles.FirstOrDefault() ?? "User"
+            };
+
+            ViewBag.Employees = new SelectList(employees, "Id", "FullName", user.EmployeeId);
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "SysAdmin")]
+        public async Task<IActionResult> EditUser(EditUserViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _userManager.FindByIdAsync(model.Id);
+                if (user == null)
+                {
+                    return NotFound();
+                }
+
+                user.Email = model.Email;
+                user.UserName = model.Email;
+                user.FullName = model.FullName;
+                user.EmployeeId = model.EmployeeId;
+                user.IsActive = model.IsActive;
+
+                var result = await _userManager.UpdateAsync(user);
+                if (result.Succeeded)
+                {
+                    // Обновление роли
+                    var currentRoles = await _userManager.GetRolesAsync(user);
+                    await _userManager.RemoveFromRolesAsync(user, currentRoles);
+                    await _userManager.AddToRoleAsync(user, model.CurrentRole);
+
+                    return RedirectToAction("Users");
+                }
+
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+            }
+
+            var employees = await _context.Employees.ToListAsync();
+            ViewBag.Employees = new SelectList(employees, "Id", "FullName", model.EmployeeId);
+            return View(model);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "SysAdmin")]
+        public async Task<IActionResult> DeleteUser(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+            {
+                return Json(new { success = false, message = "ID пользователя не указан" });
+            }
+
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+            {
+                return Json(new { success = false, message = "Пользователь не найден" });
+            }
+
+            // Проверяем, что пользователь не удаляет сам себя
+            var currentUserId = _userManager.GetUserId(User);
+            if (currentUserId == id)
+            {
+                return Json(new { success = false, message = "Вы не можете удалить свою учетную запись" });
+            }
+
+            var result = await _userManager.DeleteAsync(user);
+            if (result.Succeeded)
+            {
+                return Json(new { success = true, message = "Пользователь успешно удален" });
+            }
+
+            return Json(new { success = false, message = "Ошибка при удалении пользователя" });
+        }
+
         [Authorize(Roles = "SysAdmin")]
         public async Task<IActionResult> InitializeRoles()
         {
@@ -163,7 +267,8 @@ namespace CompanyApp.Controllers
                     UserName = adminEmail,
                     Email = adminEmail,
                     FullName = "Системный администратор",
-                    CreatedAt = DateTime.Now
+                    CreatedAt = DateTime.Now,
+                    IsActive = true
                 };
 
                 var result = await _userManager.CreateAsync(admin, "Admin123!");
@@ -176,6 +281,12 @@ namespace CompanyApp.Controllers
             return Ok("Роли инициализированы");
         }
 
+        [HttpGet]
+        public IActionResult AccessDenied()
+        {
+            return View();
+        }
+
         private IActionResult RedirectToLocal(string returnUrl)
         {
             if (Url.IsLocalUrl(returnUrl))
@@ -184,7 +295,7 @@ namespace CompanyApp.Controllers
             }
             else
             {
-                return RedirectToAction(nameof(OfficeController.Index), "Office");
+                return RedirectToAction(nameof(DashboardController.Index), "Dashboard");
             }
         }
     }

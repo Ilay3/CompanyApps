@@ -1,0 +1,61 @@
+﻿@{
+    ViewData["Title"] = "Назначение заявки";
+    var request = ViewBag.Request as CompanyApp.Application.DTOs.ServiceRequestDto;
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0 rounded-3">
+                <div class="card-body">
+                    <h2 class="card-title mb-4" style="color: #158e3a;">Назначение заявки</h2>
+
+                    <div class="alert alert-info mb-4">
+                        <h5>Заявка №@request.Id</h5>
+                        <strong>Тема:</strong> @request.Title<br />
+                        <strong>Приоритет:</strong>
+                        @switch (request.Priority)
+                        {
+                            case "Critical":
+                                <span class="badge bg-danger">Критический</span>
+                                break;
+                            case "High":
+                                <span class="badge bg-warning">Высокий</span>
+                                break;
+                            case "Medium":
+                                <span class="badge bg-info">Средний</span>
+                                break;
+                            default:
+                                <span class="badge bg-secondary">Низкий</span>
+                                break;
+                        }
+                    </div>
+
+                    <form asp-action="Assign" method="post">
+                        <input type="hidden" name="id" value="@request.Id" />
+
+                        <div class="form-group mb-3">
+                            <label for="assignToUserId" class="form-label">Назначить исполнителя</label>
+                            <select name="assignToUserId" id="assignToUserId" class="form-select" asp-items="ViewBag.SysAdmins" required>
+                                <option value="">Выберите исполнителя</option>
+                            </select>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-check-circle"></i> Назначить
+                            </button>
+                            <a asp-action="Details" asp-route-id="@request.Id" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Отмена
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

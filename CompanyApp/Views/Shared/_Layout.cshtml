@@ -87,7 +87,7 @@
         <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
             <div class="container-fluid">
                 <!-- Логотип -->
-                <a class="navbar-brand" href="@Url.Action("Index", "Dashboard")">
+                <a class="navbar-brand" asp-controller="Dashboard" asp-action="Index">
                     <i class="bi bi-pc-display-horizontal me-2"></i>CompanyApp
                 </a>
 
@@ -102,12 +102,12 @@
                         @if (User.Identity.IsAuthenticated)
                         {
                             <li class="nav-item">
-                                <a class="nav-link main-item" href="@Url.Action("Index", "Dashboard")">
+                                <a class="nav-link main-item" asp-controller="Dashboard" asp-action="Index">
                                     <i class="bi bi-speedometer2 me-1"></i> Панель управления
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link main-item" href="@Url.Action("Index", "Office")">
+                                <a class="nav-link main-item" asp-controller="Office" asp-action="Index">
                                     <i class="bi bi-building me-1"></i> Офисы
                                 </a>
                             </li>
@@ -117,24 +117,24 @@
                                 </a>
                                 <ul class="dropdown-menu">
                                     <li>
-                                        <a class="dropdown-item" href="@Url.Action("GetComputersByOfficeId", "Computer", new { officeId = 1 })">
+                                        <a class="dropdown-item" asp-controller="Computer" asp-action="GetComputersByOfficeId" asp-route-officeId="1">
                                             <i class="bi bi-pc-display me-2"></i>Компьютеры
                                         </a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" href="@Url.Action("Index", "SoftwareLicense")">
+                                        <a class="dropdown-item" asp-controller="SoftwareLicense" asp-action="Index">
                                             <i class="bi bi-file-earmark-code me-2"></i>Программное обеспечение
                                         </a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" href="@Url.Action("Index", "Maintenance")">
+                                        <a class="dropdown-item" asp-controller="Maintenance" asp-action="Index">
                                             <i class="bi bi-tools me-2"></i>Техническое обслуживание
                                         </a>
                                     </li>
                                 </ul>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link main-item" href="@Url.Action("Index", "ServiceRequest")">
+                                <a class="nav-link main-item" asp-controller="ServiceRequest" asp-action="Index">
                                     <i class="bi bi-clipboard-check me-1"></i> Заявки
                                 </a>
                             </li>
@@ -142,7 +142,7 @@
                             @if (User.IsInRole("SysAdmin") || User.IsInRole("Manager") || User.IsInRole("Accountant"))
                             {
                                 <li class="nav-item">
-                                    <a class="nav-link main-item" href="@Url.Action("Index", "Report")">
+                                    <a class="nav-link main-item" asp-controller="Report" asp-action="Index">
                                         <i class="bi bi-bar-chart me-1"></i> Отчеты
                                     </a>
                                 </li>
@@ -156,18 +156,18 @@
                                     </a>
                                     <ul class="dropdown-menu">
                                         <li>
-                                            <a class="dropdown-item" href="@Url.Action("Users", "Account")">
+                                            <a class="dropdown-item" asp-controller="Account" asp-action="Users">
                                                 <i class="bi bi-people me-2"></i>Пользователи
                                             </a>
                                         </li>
                                         <li>
-                                            <a class="dropdown-item" href="@Url.Action("Create", "Office")">
+                                            <a class="dropdown-item" asp-controller="Office" asp-action="Create">
                                                 <i class="bi bi-plus-circle me-2"></i>Создать офис
                                             </a>
                                         </li>
                                         <li><hr class="dropdown-divider"></li>
                                         <li>
-                                            <a class="dropdown-item" href="@Url.Action("InitializeRoles", "Account")">
+                                            <a class="dropdown-item" asp-controller="Account" asp-action="InitializeRoles">
                                                 <i class="bi bi-shield-check me-2"></i>Инициализация ролей
                                             </a>
                                         </li>
@@ -178,7 +178,7 @@
                         else
                         {
                             <li class="nav-item">
-                                <a class="nav-link main-item" href="@Url.Action("Privacy", "Home")">
+                                <a class="nav-link main-item" asp-controller="Home" asp-action="Privacy">
                                     <i class="bi bi-info-circle me-1"></i> О приложении
                                 </a>
                             </li>
@@ -217,7 +217,7 @@
                                     </li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
-                                        <a class="dropdown-item" href="@Url.Action("Index", "ServiceRequest")">
+                                        <a class="dropdown-item" asp-controller="ServiceRequest" asp-action="Index">
                                             <i class="bi bi-clipboard-check me-2"></i>Мои заявки
                                         </a>
                                     </li>
@@ -235,7 +235,7 @@
                         else
                         {
                             <li class="nav-item">
-                                <a class="nav-link" href="@Url.Action("Login", "Account")">
+                                <a class="nav-link" asp-controller="Account" asp-action="Login">
                                     <i class="bi bi-box-arrow-in-right me-1"></i> Вход
                                 </a>
                             </li>
@@ -257,10 +257,10 @@
                     <p class="mb-0">&copy; 2024 - CompanyApp - <span class="text-muted">Система управления корпоративным оборудованием</span></p>
                 </div>
                 <div class="col-md-6 text-md-end">
-                    <a href="@Url.Action("Privacy", "Home")" class="text-decoration-none text-secondary me-3">О приложении</a>
+                    <a asp-controller="Home" asp-action="Privacy" class="text-decoration-none text-secondary me-3">О приложении</a>
                     @if (User.Identity.IsAuthenticated)
                     {
-                        <a href="@Url.Action("Index", "Dashboard")" class="text-decoration-none text-secondary">Главная</a>
+                        <a asp-controller="Dashboard" asp-action="Index" class="text-decoration-none text-secondary">Главная</a>
                     }
                 </div>
             </div>
@@ -285,8 +285,8 @@
             });
 
             // Если нет активной ссылки, подсвечиваем Dashboard для главной
-            if (!document.querySelector('.nav-link.active') && (currentPath === '/' || currentPath === '/dashboard')) {
-                const dashboardLink = document.querySelector('a[href*="Dashboard"]');
+            if (!document.querySelector('.nav-link.active') && (currentPath === '/' || currentPath === '/dashboard' || currentPath === '/dashboard/index')) {
+                const dashboardLink = document.querySelector('a[asp-controller="Dashboard"]');
                 if (dashboardLink) {
                     dashboardLink.classList.add('active');
                 }

@@ -30,12 +30,24 @@ namespace CompanyApp.Controllers
             _officeService = officeService;
         }
 
+        // GET: /Equipment/Details/5
+        public async Task<IActionResult> Details(int id)
+        {
+            var equipment = await _equipmentService.GetEquipmentByIdAsync(id);
+            if (equipment == null)
+            {
+                return NotFound();
+            }
+
+            return View(equipment);
+        }
+
         // GET: /Equipment/Create
         public async Task<IActionResult> Create(int departmentId)
         {
             var departments = await _departmentService.GetAllDepartmentsAsync();
             var dto = new CRUDEquipmentDto { DepartmentId = departmentId };
-            
+
             return View(dto);
         }
 
@@ -71,7 +83,6 @@ namespace CompanyApp.Controllers
             return View(dto);
         }
 
-
         // POST: /Equipment/Edit
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -86,7 +97,6 @@ namespace CompanyApp.Controllers
             return View(dto);
         }
 
-
         // POST: /Equipment/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -95,6 +105,22 @@ namespace CompanyApp.Controllers
             await _equipmentService.DeleteEquipmentAsync(id);
             return RedirectToAction("Details", "Department", new { id = departmentId });
         }
-    }
 
+        // POST: /Equipment/Delete - для удаления со страницы деталей
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var equipment = await _equipmentService.GetEquipmentByIdAsync(id);
+            if (equipment == null)
+            {
+                return NotFound();
+            }
+
+            var departmentId = equipment.DepartmentId;
+            await _equipmentService.DeleteEquipmentAsync(id);
+
+            return RedirectToAction("Details", "Department", new { id = departmentId });
+        }
+    }
 }

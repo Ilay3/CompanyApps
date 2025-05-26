@@ -32,7 +32,7 @@
                             <tbody>
                                 @foreach (var user in Model)
                                 {
-                                    <tr>
+                                    <tr id="user-row-@user.Id">
                                         <td>@user.FullName</td>
                                         <td>@user.Email</td>
                                         <td>
@@ -58,7 +58,7 @@
                                                 <a asp-action="EditUser" asp-route-id="@user.Id" class="btn btn-sm btn-outline-primary">
                                                     <i class="bi bi-pencil"></i>
                                                 </a>
-                                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmDelete('@user.Id')">
+                                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmDelete('@user.Id', '@user.FullName')">
                                                     <i class="bi bi-trash"></i>
                                                 </button>
                                             </div>
@@ -75,11 +75,66 @@
 </div>
 
 @section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        function confirmDelete(userId) {
-            if (confirm('Вы уверены, что хотите удалить этого пользователя?')) {
-                // Реализовать удаление
-            }
+        function confirmDelete(userId, userName) {
+            Swal.fire({
+                title: 'Вы уверены?',
+                text: `Вы действительно хотите удалить пользователя ${userName}?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Да, удалить!',
+                cancelButtonText: 'Отмена'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    deleteUser(userId);
+                }
+            });
+        }
+
+        function deleteUser(userId) {
+            $.ajax({
+                url: '@Url.Action("DeleteUser", "Account")',
+                type: 'POST',
+                data: {
+                    id: userId,
+                    __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                },
+                success: function (response) {
+                    if (response.success) {
+                        Swal.fire({
+                            title: 'Удалено!',
+                            text: response.message,
+                            icon: 'success',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+
+                        // Удаляем строку из таблицы
+                        $('#user-row-' + userId).fadeOut('slow', function () {
+                            $(this).remove();
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Ошибка!',
+                            text: response.message,
+                            icon: 'error'
+                        });
+                    }
+                },
+                error: function () {
+                    Swal.fire({
+                        title: 'Ошибка!',
+                        text: 'Произошла ошибка при удалении пользователя',
+                        icon: 'error'
+                    });
+                }
+            });
         }
     </script>
+
+    <!-- Добавляем токен для AJAX запросов -->
+    @Html.AntiForgeryToken()
 }

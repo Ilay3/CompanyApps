@@ -32,6 +32,7 @@ namespace CompanyApp.Controllers
         }
 
         // GET: Dashboard
+
         public async Task<IActionResult> Index()
         {
             var offices = await _context.Offices.ToListAsync();

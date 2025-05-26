@@ -23,6 +23,7 @@ namespace CompanyApp.Controllers
         }
 
         // GET: /Maintenance
+
         public async Task<IActionResult> Index()
         {
             var maintenanceRecords = await _maintenanceService.GetAllMaintenanceRecordsAsync();

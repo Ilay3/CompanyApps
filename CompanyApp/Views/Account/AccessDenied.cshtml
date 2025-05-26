@@ -1,0 +1,67 @@
+﻿@{
+    ViewData["Title"] = "Доступ запрещен";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0 rounded-3">
+                <div class="card-body text-center p-5">
+                    <div class="mb-4">
+                        <i class="bi bi-shield-exclamation text-danger" style="font-size: 5rem;"></i>
+                    </div>
+
+                    <h2 class="card-title mb-3 text-danger">Доступ запрещен</h2>
+
+                    <p class="card-text mb-4">
+                        У вас нет прав для доступа к этой странице. Если вы считаете, что это ошибка, обратитесь к администратору системы.
+                    </p>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <a asp-controller="Dashboard" asp-action="Index" class="btn btn-primary">
+                                <i class="bi bi-house-door"></i> На главную
+                            </a>
+                            <a asp-controller="ServiceRequest" asp-action="Index" class="btn btn-outline-primary">
+                                <i class="bi bi-clipboard-check"></i> Мои заявки
+                            </a>
+                        }
+                        else
+                        {
+                            <a asp-controller="Account" asp-action="Login" class="btn btn-primary">
+                                <i class="bi bi-box-arrow-in-right"></i> Войти в систему
+                            </a>
+                        }
+                    </div>
+
+                    <div class="mt-4">
+                        <small class="text-muted">
+                            Ваша роль:
+                            @if (User.IsInRole("SysAdmin"))
+                            {
+                                <span class="badge bg-danger">Администратор</span>
+                            }
+                            else if (User.IsInRole("Manager"))
+                            {
+                                <span class="badge bg-primary">Руководитель</span>
+                            }
+                            else if (User.IsInRole("Accountant"))
+                            {
+                                <span class="badge bg-success">Бухгалтер</span>
+                            }
+                            else if (User.IsInRole("User"))
+                            {
+                                <span class="badge bg-secondary">Пользователь</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Не определена</span>
+                            }
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

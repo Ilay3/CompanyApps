@@ -1,0 +1,79 @@
+﻿@model CompanyApp.Models.EditUserViewModel
+
+@{
+    ViewData["Title"] = "Редактирование пользователя";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0 rounded-3">
+                <div class="card-body">
+                    <h2 class="card-title mb-4" style="color: #158e3a;">Редактирование пользователя</h2>
+
+                    <form asp-action="EditUser" method="post">
+                        <div asp-validation-summary="All" class="text-danger"></div>
+                        <input type="hidden" asp-for="Id" />
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Email" class="form-label"></label>
+                                    <input asp-for="Email" class="form-control" />
+                                    <span asp-validation-for="Email" class="text-danger"></span>
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label asp-for="FullName" class="form-label"></label>
+                                    <input asp-for="FullName" class="form-control" />
+                                    <span asp-validation-for="FullName" class="text-danger"></span>
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label asp-for="EmployeeId" class="form-label"></label>
+                                    <select asp-for="EmployeeId" class="form-select" asp-items="ViewBag.Employees">
+                                        <option value="">Выберите сотрудника (опционально)</option>
+                                    </select>
+                                    <span asp-validation-for="EmployeeId" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="CurrentRole" class="form-label"></label>
+                                    <select asp-for="CurrentRole" class="form-select">
+                                        <option value="User">Пользователь</option>
+                                        <option value="Accountant">Бухгалтер</option>
+                                        <option value="Manager">Руководитель</option>
+                                        <option value="SysAdmin">Системный администратор</option>
+                                    </select>
+                                    <span asp-validation-for="CurrentRole" class="text-danger"></span>
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <div class="form-check form-switch">
+                                        <input asp-for="IsActive" class="form-check-input" type="checkbox" />
+                                        <label asp-for="IsActive" class="form-check-label"></label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-save"></i> Сохранить изменения
+                            </button>
+                            <a asp-action="Users" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Отмена
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,100 @@
+﻿@model IEnumerable<CompanyApp.Application.DTOs.SoftwareLicenseDto>
+
+@{
+    ViewData["Title"] = "Программное обеспечение компьютера";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow-sm border-0 rounded-3">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="card-title" style="color: #158e3a;">
+                            Программное обеспечение для: @ViewBag.ComputerModel
+                        </h2>
+                        <div>
+                            <a asp-controller="Computer" asp-action="Details" asp-route-id="@ViewBag.ComputerId" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Назад к компьютеру
+                            </a>
+                        </div>
+                    </div>
+
+                    @if (!Model.Any())
+                    {
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i> На этом компьютере не установлено программное обеспечение.
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Название</th>
+                                        <th>Версия</th>
+                                        <th>Тип лицензии</th>
+                                        <th>Дата установки</th>
+                                        <th>Срок действия</th>
+                                        <th>Действия</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var software in Model)
+                                    {
+                                        var installation = software.Installations.FirstOrDefault(i => i.ComputerId == ViewBag.ComputerId);
+                                        var daysLeft = software.ExpirationDate.HasValue ?
+                                        (software.ExpirationDate.Value - DateTime.Now).Days : int.MaxValue;
+
+                                        var statusClass = daysLeft <= 0 ? "bg-danger" :
+                                        daysLeft <= 30 ? "bg-warning" :
+                                        "bg-success";
+
+                                        <tr>
+                                            <td>
+                                                <a asp-action="Details" asp-route-id="@software.Id">
+                                                    @software.Name
+                                                </a>
+                                            </td>
+                                            <td>@software.Version</td>
+                                            <td>@software.LicenseType</td>
+                                            <td>
+                                                @if (installation != null)
+                                                {
+                                                    @installation.InstallationDate.ToString("dd.MM.yyyy")
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (software.ExpirationDate.HasValue)
+                                                {
+                                                    <span class="badge @statusClass">
+                                                        @software.ExpirationDate.Value.ToString("dd.MM.yyyy")
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-success">Бессрочно</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <form asp-action="Unassign" method="post" class="d-inline">
+                                                    <input type="hidden" name="computerId" value="@ViewBag.ComputerId" />
+                                                    <input type="hidden" name="softwareLicenseId" value="@software.Id" />
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                            onclick="return confirm('Вы уверены, что хотите удалить это ПО с компьютера?');">
+                                                        <i class="bi bi-trash"></i> Удалить
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

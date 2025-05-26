@@ -56,4 +56,28 @@ namespace CompanyApp.Models
         public List<string> Roles { get; set; }
         public string EmployeeName { get; set; }
     }
+
+    public class EditUserViewModel
+    {
+        public string Id { get; set; }
+
+        [Required(ErrorMessage = "Email обязателен")]
+        [EmailAddress(ErrorMessage = "Неверный формат email")]
+        [Display(Name = "Email")]
+        public string Email { get; set; }
+
+        [Required(ErrorMessage = "Имя обязательно")]
+        [Display(Name = "Полное имя")]
+        public string FullName { get; set; }
+
+        [Display(Name = "Сотрудник")]
+        public int? EmployeeId { get; set; }
+
+        [Required(ErrorMessage = "Роль обязательна")]
+        [Display(Name = "Роль")]
+        public string CurrentRole { get; set; }
+
+        [Display(Name = "Активен")]
+        public bool IsActive { get; set; }
+    }
 }
