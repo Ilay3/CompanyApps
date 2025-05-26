@@ -18,60 +18,6 @@
                     <!-- Корпуса и отделы -->
                     @if (Model.Buildings != null && Model.Buildings.Any())
                     {
-                        @foreach (var building in Model.Buildings)
-                        {
-                            <!-- Название корпуса -->
-                            <h4 class="text-success mb-3 mt-4">
-                                <i class="bi bi-building-fill me-2"></i>@building.Name
-                            </h4>
-
-                            <!-- Отделы в корпусе -->
-                            @if (building.Departments != null && building.Departments.Any())
-                            {
-                                <ul class="list-group">
-                                    @foreach (var department in building.Departments)
-                                    {
-                                        <li class="list-group-item border-0 ps-4">
-                                            <i class="bi bi-diagram-3-fill text-success me-2"></i>@department.Name
-                                        </li>
-                                    }
-                                </ul>
-                            }
-                            else
-                            {
-                                <div class="alert alert-warning mt-2">
-                                    <i class="bi bi-info-circle-fill me-2"></i>В этом корпусе нет отделов.
-                                </div>
-                            }
-                        }
-                    }
-                    else
-
-                    {
-                        <!-- Корпуса -->
-                        @if (Model.Buildings.Any())
-
-                        {
-                            <h4 class="text-success mb-3">Корпуса</h4>
-                            <div class="list-group">
-                                @foreach (var building in Model.Buildings)
-
-                                {
-                                    <a href="#" class="list-group-item list-group-item-action border-0">
-                                        <i class="bi bi-building-fill text-success me-2"></i>@building.Name
-                                    </a>
-                                }
-                            </div>
-                        }
-
-                        else
-
-                        {
-                            <div class="alert alert-warning mt-3">
-                                <i class="bi bi-info-circle-fill me-2"></i>На этом предприятии нет корпусов.
-                            </div>
-                        }
-
                         <!-- Отделы -->
                         @if (Model.Departments.Any())
 
