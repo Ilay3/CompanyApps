@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CompanyApp.Controllers
 {
+    [Route("[controller]")]
+
     public class OfficeController : Controller
     {
         private readonly IOfficeService _officeService;
@@ -24,6 +26,9 @@ namespace CompanyApp.Controllers
         }
 
         // GET: /Office
+        [HttpGet("Index")]
+        [HttpGet("")]
+        [Route("~/")]
         public async Task<IActionResult> Index()
         {
             // Получаем все офисы
@@ -68,6 +73,8 @@ namespace CompanyApp.Controllers
 
 
         // GET: /Office/Details/5
+        [HttpGet("Details/{id}")]
+
         public async Task<IActionResult> Details(int id)
         {
             var office = await _officeService.GetOfficeByIdAsync(id);
@@ -86,6 +93,7 @@ namespace CompanyApp.Controllers
         }
 
         // GET: /Office/Buildings/5
+        [HttpGet("Buildings/{id}")]
         public async Task<IActionResult> Buildings(int id)
         {
             var buildings = await _buildingService.GetBuildingsByOfficeIdAsync(id);
@@ -98,7 +106,7 @@ namespace CompanyApp.Controllers
 
             return View(buildings);
         }
-
+        [HttpGet("Departments/{officeId}")]
         public async Task<IActionResult> Departments(int id)
         {
             var departments = await _departmentService.GetDepartmentsByOfficeIdAsync(id);
@@ -110,13 +118,14 @@ namespace CompanyApp.Controllers
             return View(departments);
         }
 
-        [HttpGet]
+        [HttpGet("Create")]
         public IActionResult Create()
         {
             return View(new OfficeDto());
         }
 
-        [HttpPost]
+        [HttpPost("Create")]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(OfficeDto officeDto)
         {
             if (!ModelState.IsValid)
@@ -130,7 +139,7 @@ namespace CompanyApp.Controllers
         }
 
 
-        [HttpGet]
+        [HttpGet("Edit/{id}")]
         public async Task<IActionResult> Edit(int id)
         {
             var officeDto = await _officeService.GetOfficeByIdAsync(id);
@@ -141,7 +150,8 @@ namespace CompanyApp.Controllers
             return PartialView("_EditOfficePartial", officeDto);
         }
 
-        [HttpPost]
+        [HttpPost("Edit/{id}")] 
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(OfficeDto officeDto)
         {
             if (!ModelState.IsValid)

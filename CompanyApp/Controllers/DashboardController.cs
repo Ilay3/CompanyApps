@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 
 namespace CompanyApp.Controllers
 {
+    [Route("[controller]")]
     public class DashboardController : Controller
     {
         private readonly OfficeDbContext _context;
@@ -31,8 +32,10 @@ namespace CompanyApp.Controllers
             _softwareLicenseService = softwareLicenseService;
         }
 
-        // GET: Dashboard
-
+        // GET: Dashboard или Dashboard/Index
+        [HttpGet]
+        [HttpGet("Index")]
+        [Route("~/Dashboard")]
         public async Task<IActionResult> Index()
         {
             var offices = await _context.Offices.ToListAsync();

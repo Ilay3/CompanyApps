@@ -1,11 +1,15 @@
 ﻿using CompanyApp.Application.DTOs;
 using CompanyApp.Application.InterfacesService;
 using CompanyApp.Core.Interfaces;
+using DocumentFormat.OpenXml.Office2010.Excel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace CompanyApp.Controllers
 {
+    [Authorize]
+    [Route("[controller]")]
     public class SoftwareLicenseController : Controller
     {
         private readonly ISoftwareLicenseService _softwareLicenseService;
@@ -18,6 +22,10 @@ namespace CompanyApp.Controllers
         }
 
         // GET: /SoftwareLicense
+        [HttpGet]
+        [HttpGet("Index")]
+        [Route("~/SoftwareLicense")]
+
         public async Task<IActionResult> Index()
         {
             var softwareLicenses = await _softwareLicenseService.GetAllSoftwareLicensesAsync();
@@ -25,6 +33,8 @@ namespace CompanyApp.Controllers
         }
 
         // GET: /SoftwareLicense/Details/5
+        [HttpGet("Details/{id}")]
+
         public async Task<IActionResult> Details(int id)
         {
             var softwareLicense = await _softwareLicenseService.GetSoftwareLicenseByIdAsync(id);
@@ -37,6 +47,7 @@ namespace CompanyApp.Controllers
         }
 
         // GET: /SoftwareLicense/Create
+        [HttpGet("Create")]
         public IActionResult Create()
         {
             return View(new SoftwareLicenseDto
@@ -48,8 +59,10 @@ namespace CompanyApp.Controllers
         }
 
         // POST: /SoftwareLicense/Create
-        [HttpPost]
+        [HttpPost("Create")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "SysAdmin")]
+
         public async Task<IActionResult> Create(SoftwareLicenseDto softwareLicenseDto)
         {
             if (ModelState.IsValid)
@@ -61,6 +74,9 @@ namespace CompanyApp.Controllers
         }
 
         // GET: /SoftwareLicense/Edit/5
+        [HttpGet("Edit/{id}")]
+        [Authorize(Roles = "SysAdmin,Manager")]
+
         public async Task<IActionResult> Edit(int id)
         {
             var softwareLicense = await _softwareLicenseService.GetSoftwareLicenseByIdAsync(id);
@@ -72,8 +88,10 @@ namespace CompanyApp.Controllers
         }
 
         // POST: /SoftwareLicense/Edit/5
-        [HttpPost]
+        [HttpPost("Edit/{id}")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "SysAdmin")]
+
         public async Task<IActionResult> Edit(int id, SoftwareLicenseDto softwareLicenseDto)
         {
             if (id != softwareLicenseDto.Id)
@@ -90,6 +108,8 @@ namespace CompanyApp.Controllers
         }
 
         // GET: /SoftwareLicense/Delete/5
+        [HttpGet("Delete/{id}")]
+
         public async Task<IActionResult> Delete(int id)
         {
             var softwareLicense = await _softwareLicenseService.GetSoftwareLicenseByIdAsync(id);
@@ -103,6 +123,8 @@ namespace CompanyApp.Controllers
         // POST: /SoftwareLicense/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "SysAdmin")]
+
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             await _softwareLicenseService.DeleteSoftwareLicenseAsync(id);
@@ -110,6 +132,7 @@ namespace CompanyApp.Controllers
         }
 
         // GET: /SoftwareLicense/Assign
+        [HttpGet("Assign/{id}")]
         public async Task<IActionResult> Assign(int id)
         {
             var softwareLicense = await _softwareLicenseService.GetSoftwareLicenseByIdAsync(id);
@@ -134,7 +157,7 @@ namespace CompanyApp.Controllers
         }
 
         // POST: /SoftwareLicense/Assign
-        [HttpPost]
+        [HttpPost("Assign/{id}")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Assign(AssignSoftwareDto assignDto)
         {
@@ -154,8 +177,10 @@ namespace CompanyApp.Controllers
         }
 
         // POST: /SoftwareLicense/Unassign
-        [HttpPost]
+        [HttpPost("Unassign/{softwareLicenseId}")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "SysAdmin")]
+
         public async Task<IActionResult> Unassign(int computerId, int softwareLicenseId)
         {
             await _softwareLicenseService.UnassignSoftwareFromComputerAsync(computerId, softwareLicenseId);
@@ -163,6 +188,8 @@ namespace CompanyApp.Controllers
         }
 
         // GET: /SoftwareLicense/ForComputer/5
+
+        [HttpGet("ForComputer/{id}")]
         public async Task<IActionResult> ForComputer(int id)
         {
             var softwareLicenses = await _softwareLicenseService.GetSoftwareLicensesByComputerIdAsync(id);
@@ -175,6 +202,10 @@ namespace CompanyApp.Controllers
         }
 
         // GET: /SoftwareLicense/Expiring
+       
+        [HttpGet("Expiring")]
+        [Authorize(Roles = "SysAdmin")]
+
         public async Task<IActionResult> Expiring(int days = 30)
         {
             var expiringSoftware = await _softwareLicenseService.GetExpiringSoftwareLicensesAsync(days);

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace CompanyApp.Controllers
 {
+    [Route("[controller]")]
     public class MaintenanceController : Controller
     {
         private readonly IMaintenanceService _maintenanceService;
@@ -22,15 +23,18 @@ namespace CompanyApp.Controllers
             _equipmentService = equipmentService;
         }
 
-        // GET: /Maintenance
-
+        // GET: Maintenance или Maintenance/Index
+        [HttpGet]
+        [HttpGet("Index")]
+        [Route("~/Maintenance")]
         public async Task<IActionResult> Index()
         {
             var maintenanceRecords = await _maintenanceService.GetAllMaintenanceRecordsAsync();
             return View(maintenanceRecords);
         }
 
-        // GET: /Maintenance/Details/5
+        // GET: Maintenance/Details/5
+        [HttpGet("Details/{id}")]
         public async Task<IActionResult> Details(int id)
         {
             var maintenanceRecord = await _maintenanceService.GetMaintenanceRecordByIdAsync(id);
@@ -42,7 +46,8 @@ namespace CompanyApp.Controllers
             return View(maintenanceRecord);
         }
 
-        // GET: /Maintenance/Create
+        // GET: Maintenance/Create
+        [HttpGet("Create")]
         public async Task<IActionResult> Create(int? computerId = null, int? equipmentId = null)
         {
             var createDto = new CreateMaintenanceRecordDto
@@ -83,8 +88,8 @@ namespace CompanyApp.Controllers
             return View(createDto);
         }
 
-        // POST: /Maintenance/Create
-        [HttpPost]
+        // POST: Maintenance/Create
+        [HttpPost("Create")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CreateMaintenanceRecordDto createDto)
         {
@@ -134,7 +139,8 @@ namespace CompanyApp.Controllers
             return View(createDto);
         }
 
-        // GET: /Maintenance/Edit/5
+        // GET: Maintenance/Edit/5
+        [HttpGet("Edit/{id}")]
         public async Task<IActionResult> Edit(int id)
         {
             var maintenanceRecord = await _maintenanceService.GetMaintenanceRecordByIdAsync(id);
@@ -160,8 +166,8 @@ namespace CompanyApp.Controllers
             return View(maintenanceRecord);
         }
 
-        // POST: /Maintenance/Edit/5
-        [HttpPost]
+        // POST: Maintenance/Edit/5
+        [HttpPost("Edit/{id}")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, MaintenanceRecordDto maintenanceRecordDto)
         {
@@ -206,7 +212,8 @@ namespace CompanyApp.Controllers
             return View(maintenanceRecordDto);
         }
 
-        // GET: /Maintenance/Delete/5
+        // GET: Maintenance/Delete/5
+        [HttpGet("Delete/{id}")]
         public async Task<IActionResult> Delete(int id)
         {
             var maintenanceRecord = await _maintenanceService.GetMaintenanceRecordByIdAsync(id);
@@ -217,8 +224,8 @@ namespace CompanyApp.Controllers
             return View(maintenanceRecord);
         }
 
-        // POST: /Maintenance/Delete/5
-        [HttpPost, ActionName("Delete")]
+        // POST: Maintenance/Delete/5
+        [HttpPost("Delete/{id}"), ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
@@ -240,7 +247,8 @@ namespace CompanyApp.Controllers
             }
         }
 
-        // GET: /Maintenance/ForComputer/5
+        // GET: Maintenance/ForComputer/5
+        [HttpGet("ForComputer/{id}")]
         public async Task<IActionResult> ForComputer(int id)
         {
             var maintenanceRecords = await _maintenanceService.GetMaintenanceRecordsByComputerIdAsync(id);
@@ -252,7 +260,8 @@ namespace CompanyApp.Controllers
             return View(maintenanceRecords);
         }
 
-        // GET: /Maintenance/ForEquipment/5
+        // GET: Maintenance/ForEquipment/5
+        [HttpGet("ForEquipment/{id}")]
         public async Task<IActionResult> ForEquipment(int id)
         {
             var maintenanceRecords = await _maintenanceService.GetMaintenanceRecordsByEquipmentIdAsync(id);
@@ -264,7 +273,8 @@ namespace CompanyApp.Controllers
             return View(maintenanceRecords);
         }
 
-        // GET: /Maintenance/Upcoming
+        // GET: Maintenance/Upcoming
+        [HttpGet("Upcoming")]
         public async Task<IActionResult> Upcoming(int days = 30)
         {
             var upcomingMaintenance = await _maintenanceService.GetUpcomingMaintenanceAsync(days);
@@ -272,7 +282,8 @@ namespace CompanyApp.Controllers
             return View(upcomingMaintenance);
         }
 
-        // GET: /Maintenance/Dashboard
+        // GET: Maintenance/Dashboard
+        [HttpGet("Dashboard")]
         public async Task<IActionResult> Dashboard()
         {
             var summary = await _maintenanceService.GetMaintenanceSummaryAsync();

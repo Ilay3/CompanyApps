@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 namespace CompanyApp.Controllers
 {
     [Authorize]
+    [Route("[controller]")]
     public class ServiceRequestController : Controller
     {
         private readonly IServiceRequestService _serviceRequestService;
@@ -30,7 +31,10 @@ namespace CompanyApp.Controllers
             _userManager = userManager;
         }
 
-        // GET: ServiceRequest
+        // GET: ServiceRequest или ServiceRequest/Index
+        [HttpGet]
+        [HttpGet("Index")]
+        [Route("~/ServiceRequest")]
         public async Task<IActionResult> Index()
         {
             var user = await _userManager.GetUserAsync(User);
@@ -51,6 +55,7 @@ namespace CompanyApp.Controllers
         }
 
         // GET: ServiceRequest/Details/5
+        [HttpGet("Details/{id}")]
         public async Task<IActionResult> Details(int id)
         {
             var request = await _serviceRequestService.GetServiceRequestByIdAsync(id);
@@ -75,6 +80,7 @@ namespace CompanyApp.Controllers
         }
 
         // GET: ServiceRequest/Create
+        [HttpGet("Create")]
         public async Task<IActionResult> Create(int? computerId = null, int? equipmentId = null)
         {
             var createDto = new CreateServiceRequestDto
@@ -91,7 +97,7 @@ namespace CompanyApp.Controllers
         }
 
         // POST: ServiceRequest/Create
-        [HttpPost]
+        [HttpPost("Create")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CreateServiceRequestDto dto)
         {
@@ -109,7 +115,7 @@ namespace CompanyApp.Controllers
         }
 
         // GET: ServiceRequest/UpdateStatus/5
-        [HttpGet]
+        [HttpGet("UpdateStatus/{id}")]
         [Authorize(Roles = "SysAdmin,Manager")]
         public async Task<IActionResult> UpdateStatus(int id)
         {
@@ -132,7 +138,7 @@ namespace CompanyApp.Controllers
         }
 
         // POST: ServiceRequest/UpdateStatus
-        [HttpPost]
+        [HttpPost("UpdateStatus")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "SysAdmin,Manager")]
         public async Task<IActionResult> UpdateStatus(UpdateServiceRequestStatusDto dto)
@@ -154,7 +160,7 @@ namespace CompanyApp.Controllers
         }
 
         // POST: ServiceRequest/AddComment
-        [HttpPost]
+        [HttpPost("AddComment")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddComment(AddCommentDto dto)
         {
@@ -170,7 +176,7 @@ namespace CompanyApp.Controllers
         }
 
         // GET: ServiceRequest/Assign/5
-        [HttpGet]
+        [HttpGet("Assign/{id}")]
         [Authorize(Roles = "SysAdmin")]
         public async Task<IActionResult> Assign(int id)
         {
@@ -188,7 +194,7 @@ namespace CompanyApp.Controllers
         }
 
         // POST: ServiceRequest/Assign
-        [HttpPost]
+        [HttpPost("Assign")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "SysAdmin")]
         public async Task<IActionResult> Assign(int id, string assignToUserId)

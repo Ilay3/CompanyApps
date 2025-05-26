@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 namespace CompanyApp.Controllers
 {
     [Authorize(Roles = "SysAdmin,Manager,Accountant")]
+    [Route("[controller]")]
     public class ReportController : Controller
     {
         private readonly IReportService _reportService;
@@ -16,15 +17,17 @@ namespace CompanyApp.Controllers
             _reportService = reportService;
         }
 
-        // GET: Report
-
+        // GET: Report или Report/Index
+        [HttpGet]
+        [HttpGet("Index")]
+        [Route("~/Report")]
         public IActionResult Index()
         {
             return View();
         }
 
         // POST: Report/Generate
-        [HttpPost]
+        [HttpPost("Generate")]
         public async Task<IActionResult> Generate(DateTime startDate, DateTime endDate)
         {
             var report = await _reportService.GenerateEquipmentReportAsync(startDate, endDate);
@@ -32,6 +35,7 @@ namespace CompanyApp.Controllers
         }
 
         // GET: Report/ExportPdf
+        [HttpGet("ExportPdf")]
         public async Task<IActionResult> ExportPdf(DateTime startDate, DateTime endDate)
         {
             var report = await _reportService.GenerateEquipmentReportAsync(startDate, endDate);
@@ -41,6 +45,7 @@ namespace CompanyApp.Controllers
         }
 
         // GET: Report/ExportExcel
+        [HttpGet("ExportExcel")]
         public async Task<IActionResult> ExportExcel(DateTime startDate, DateTime endDate)
         {
             var report = await _reportService.GenerateEquipmentReportAsync(startDate, endDate);
