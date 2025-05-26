@@ -7,31 +7,37 @@
 <div class="container mt-4">
     <div class="row justify-content-center">
         <div class="col-md-6">
-            <div class="card shadow-sm border-0 rounded-3">
+            <div class="card hover-lift animate-fade-in-up">
                 <div class="card-body">
-                    <h2 class="card-title mb-4" style="color: #158e3a;">@ViewData["Title"]</h2>
+                    <h2 class="text-gradient mb-4">
+                        <i class="bi bi-person-gear me-2"></i>@ViewData["Title"]
+                    </h2>
 
                     <form asp-action="Edit" method="post">
                         @Html.AntiForgeryToken()
 
-                        <!-- Поле для полного имени -->
-                        <div class="mb-3">
-                            <label asp-for="FullName" class="form-label">Полное имя</label>
-                            <input asp-for="FullName" class="form-control" placeholder="Введите полное имя сотрудника" />
+                        <div class="mb-4">
+                            <label asp-for="FullName" class="form-label">
+                                <i class="bi bi-person me-2"></i>Полное имя
+                            </label>
+                            <input asp-for="FullName" class="form-control"
+                                   placeholder="Введите ФИО сотрудника"
+                                   autocomplete="name" />
                             <span asp-validation-for="FullName" class="text-danger"></span>
+                            <small class="form-text text-muted">
+                                Например: Иванов Иван Иванович
+                            </small>
                         </div>
 
-                        <!-- Скрытые поля -->
                         <input type="hidden" asp-for="Id" />
                         <input type="hidden" asp-for="DepartmentId" value="@Model.DepartmentId" />
 
-                        <!-- Кнопки управления -->
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                             <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save"></i> Сохранить изменения
+                                <i class="bi bi-check-circle me-1"></i>Сохранить изменения
                             </button>
-                            <a asp-action="Cancel" asp-route-departmentId="@Model.DepartmentId" class="btn btn-secondary">
-                                <i class="fas fa-times"></i> Отмена
+                            <a asp-action="Details" asp-controller="Department" asp-route-id="@Model.DepartmentId" class="btn btn-secondary">
+                                <i class="bi bi-x-circle me-1"></i>Отмена
                             </a>
                         </div>
                     </form>
@@ -42,6 +48,13 @@
 </div>
 
 @section Scripts {
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Выделяем текст в поле для удобного редактирования
+        document.addEventListener('DOMContentLoaded', function () {
+            const nameInput = document.getElementById('FullName');
+            nameInput.focus();
+            nameInput.select();
+        });
+    </script>
 }

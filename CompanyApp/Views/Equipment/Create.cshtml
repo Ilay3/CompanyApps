@@ -7,37 +7,49 @@
 <div class="container mt-4">
     <div class="row justify-content-center">
         <div class="col-md-6">
-            <div class="card shadow-sm border-0 rounded-3">
+            <div class="card hover-lift animate-fade-in-up">
                 <div class="card-body">
-                    <h2 class="card-title mb-4" style="color: #158e3a;">@ViewData["Title"]</h2>
+                    <h2 class="text-gradient mb-4">
+                        <i class="bi bi-printer me-2"></i>@ViewData["Title"]
+                    </h2>
 
                     <form asp-action="Create" method="post">
                         @Html.AntiForgeryToken()
 
-                        <!-- Поле для типа техники -->
-                        <div class="mb-3">
-                            <label asp-for="Type" class="form-label">Тип техники</label>
-                            <input asp-for="Type" class="form-control" placeholder="Введите тип техники" />
+                        <div class="mb-4">
+                            <label asp-for="Type" class="form-label">
+                                <i class="bi bi-tag me-2"></i>Тип техники
+                            </label>
+                            <select asp-for="Type" class="form-select">
+                                <option value="">Выберите тип техники</option>
+                                <option value="Принтер">Принтер</option>
+                                <option value="Сканер">Сканер</option>
+                                <option value="МФУ">МФУ</option>
+                                <option value="Проектор">Проектор</option>
+                                <option value="Телевизор">Телевизор</option>
+                                <option value="Телефон">Телефон</option>
+                                <option value="Факс">Факс</option>
+                                <option value="Другое">Другое</option>
+                            </select>
                             <span asp-validation-for="Type" class="text-danger"></span>
                         </div>
 
-                        <!-- Поле для модели -->
-                        <div class="mb-3">
-                            <label asp-for="Model" class="form-label">Модель</label>
-                            <input asp-for="Model" class="form-control" placeholder="Введите модель" />
+                        <div class="mb-4">
+                            <label asp-for="Model" class="form-label">
+                                <i class="bi bi-gear me-2"></i>Модель
+                            </label>
+                            <input asp-for="Model" class="form-control" placeholder="Введите модель оборудования" />
                             <span asp-validation-for="Model" class="text-danger"></span>
                         </div>
 
-                        <!-- Скрытое поле для идентификатора отдела -->
                         <input type="hidden" asp-for="DepartmentId" />
 
-                        <!-- Кнопки управления -->
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-plus"></i> Создать
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-plus-circle me-1"></i>Создать
                             </button>
                             <a asp-action="Details" asp-controller="Department" asp-route-id="@Model.DepartmentId" class="btn btn-secondary">
-                                <i class="fas fa-arrow-left"></i> Отменить
+                                <i class="bi bi-x-circle me-1"></i>Отмена
                             </a>
                         </div>
                     </form>
@@ -48,5 +60,14 @@
 </div>
 
 @section Scripts {
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Автозаполнение модели при выборе типа
+        document.getElementById('Type').addEventListener('change', function () {
+            const modelInput = document.getElementById('Model');
+            if (this.value && !modelInput.value) {
+                modelInput.focus();
+            }
+        });
+    </script>
 }

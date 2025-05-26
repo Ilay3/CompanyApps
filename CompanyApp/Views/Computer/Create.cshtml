@@ -2,114 +2,182 @@
 
 <div class="container mt-4">
     <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow-sm border-0 rounded-3">
+        <div class="col-md-10">
+            <div class="card hover-lift animate-fade-in-up">
+                <div class="card-header">
+                    <h2 class="text-gradient mb-0">
+                        <i class="bi bi-pc-display me-2"></i>Создание нового компьютера
+                    </h2>
+                </div>
                 <div class="card-body">
-                    <h2 class="card-title mb-4" style="color: #158e3a;">Создание нового компьютера</h2>
-
-                    <!-- Форма создания компьютера -->
                     <form asp-action="Create" method="post">
                         @Html.AntiForgeryToken()
                         <input type="hidden" asp-for="EmployeeId" />
 
-                        <!-- Поле для пользовательского ввода идентификатора -->
-                        <div class="mb-3">
-                            <label asp-for="CustomIdentifierPart" class="form-label">Уникальный идентификатор</label>
-                            <input asp-for="CustomIdentifierPart" class="form-control" placeholder="Введите уникальный идентификатор (не менее 5 символов)" />
-                            <span asp-validation-for="CustomIdentifierPart" class="text-danger"></span>
-                        </div>
+                        <div class="row g-4">
+                            <!-- Основная информация -->
+                            <div class="col-md-6">
+                                <div class="card glass-effect h-100">
+                                    <div class="card-body">
+                                        <h5 class="text-primary mb-3">
+                                            <i class="bi bi-info-circle me-2"></i>Основная информация
+                                        </h5>
 
+                                        <div class="mb-3">
+                                            <label asp-for="CustomIdentifierPart" class="form-label">
+                                                <i class="bi bi-hash me-2"></i>Уникальный идентификатор
+                                            </label>
+                                            <input asp-for="CustomIdentifierPart" class="form-control"
+                                                   placeholder="Введите уникальный идентификатор (не менее 5 символов)" />
+                                            <span asp-validation-for="CustomIdentifierPart" class="text-danger"></span>
+                                        </div>
 
-                        <!-- Поле для модели -->
-                        <div class="mb-3">
-                            <label asp-for="Model" class="form-label">Модель</label>
-                            <input asp-for="Model" class="form-control" placeholder="Введите модель компьютера" />
-                            <span asp-validation-for="Model" class="text-danger"></span>
-                        </div>
+                                        <div class="mb-3">
+                                            <label asp-for="Model" class="form-label">
+                                                <i class="bi bi-laptop me-2"></i>Модель
+                                            </label>
+                                            <input asp-for="Model" class="form-control"
+                                                   placeholder="Введите модель компьютера" />
+                                            <span asp-validation-for="Model" class="text-danger"></span>
+                                        </div>
 
-                        <!-- Поле для процессора -->
-                        <div class="mb-3">
-                            <label asp-for="Processor" class="form-label">Процессор</label>
-                            <input asp-for="Processor" class="form-control" placeholder="Введите процессор" />
-                            <span asp-validation-for="Processor" class="text-danger"></span>
-                        </div>
+                                        <div class="mb-3">
+                                            <label asp-for="Processor" class="form-label">
+                                                <i class="bi bi-cpu me-2"></i>Процессор
+                                            </label>
+                                            <input asp-for="Processor" class="form-control"
+                                                   placeholder="Введите процессор" />
+                                            <span asp-validation-for="Processor" class="text-danger"></span>
+                                        </div>
 
-                        <!-- Поле для ОЗУ -->
-                        <div class="mb-3">
-                            <label asp-for="RAM" class="form-label">ОЗУ</label>
-                            <input asp-for="RAM" class="form-control" placeholder="Введите размер ОЗУ" />
-                            <span asp-validation-for="RAM" class="text-danger"></span>
-                        </div>
-
-                        <!-- Поле для хранилища -->
-                        <div class="mb-3">
-                            <label asp-for="Storage" class="form-label">Хранилище</label>
-                            <input asp-for="Storage" class="form-control" placeholder="Введите размер хранилища" />
-                            <span asp-validation-for="Storage" class="text-danger"></span>
-                        </div>
-
-                        <!-- Поле для версии ОС -->
-                        <div class="mb-3">
-                            <label asp-for="OSVersion" class="form-label">Версия ОС</label>
-                            <div class="input-group">
-                                <input asp-for="OSVersion" class="form-control" placeholder="Введите версию ОС" />
-                                <select name="OEMOption" class="form-select">
-                                    <option value="">Выберите</option>
-                                    <option value="---">---</option>
-                                    <option value="OEM">OEM</option>
-                                    <option value="BOX">BOX</option>
-                                </select>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="mb-3">
+                                                    <label asp-for="RAM" class="form-label">
+                                                        <i class="bi bi-memory me-2"></i>ОЗУ
+                                                    </label>
+                                                    <input asp-for="RAM" class="form-control"
+                                                           placeholder="Например: 8 ГБ" />
+                                                    <span asp-validation-for="RAM" class="text-danger"></span>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="mb-3">
+                                                    <label asp-for="Storage" class="form-label">
+                                                        <i class="bi bi-device-hdd me-2"></i>Хранилище
+                                                    </label>
+                                                    <input asp-for="Storage" class="form-control"
+                                                           placeholder="Например: 512 ГБ SSD" />
+                                                    <span asp-validation-for="Storage" class="text-danger"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <span asp-validation-for="OSVersion" class="text-danger"></span>
+
+                            <!-- Программное обеспечение -->
+                            <div class="col-md-6">
+                                <div class="card glass-effect h-100">
+                                    <div class="card-body">
+                                        <h5 class="text-success mb-3">
+                                            <i class="bi bi-code-square me-2"></i>Программное обеспечение
+                                        </h5>
+
+                                        <div class="mb-3">
+                                            <label asp-for="OSVersion" class="form-label">
+                                                <i class="bi bi-windows me-2"></i>Версия ОС
+                                            </label>
+                                            <div class="input-group">
+                                                <input asp-for="OSVersion" class="form-control"
+                                                       placeholder="Например: Windows 11 Pro" />
+                                                <select name="OEMOption" class="form-select">
+                                                    <option value="">Выберите</option>
+                                                    <option value="---">---</option>
+                                                    <option value="OEM">OEM</option>
+                                                    <option value="BOX">BOX</option>
+                                                </select>
+                                            </div>
+                                            <span asp-validation-for="OSVersion" class="text-danger"></span>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label asp-for="OSKey" class="form-label">
+                                                <i class="bi bi-key me-2"></i>Ключ для ОС
+                                            </label>
+                                            <input asp-for="OSKey" class="form-control"
+                                                   placeholder="Введите ключ для ОС" />
+                                            <span asp-validation-for="OSKey" class="text-danger"></span>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label asp-for="OfficeVersion" class="form-label">
+                                                <i class="bi bi-file-earmark-text me-2"></i>Версия MS Office
+                                            </label>
+                                            <input asp-for="OfficeVersion" class="form-control"
+                                                   placeholder="Например: Office 2021" />
+                                            <span asp-validation-for="OfficeVersion" class="text-danger"></span>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label asp-for="OfficeKey" class="form-label">
+                                                <i class="bi bi-key me-2"></i>Ключ для MS Office
+                                            </label>
+                                            <input asp-for="OfficeKey" class="form-control"
+                                                   placeholder="Введите ключ для MS Office" />
+                                            <span asp-validation-for="OfficeKey" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-
-                        <!-- Поле для ключа ОС -->
-                        <div class="mb-3">
-                            <label asp-for="OSKey" class="form-label">Ключ для ОС</label>
-                            <input asp-for="OSKey" class="form-control" placeholder="Введите ключ для ОС" />
-                            <span asp-validation-for="OSKey" class="text-danger"></span>
-                        </div>
-
-                        <!-- Поле для версии MS Office -->
-                        <div class="mb-3">
-                            <label asp-for="OfficeVersion" class="form-label">Версия MS Office</label>
-                            <input asp-for="OfficeVersion" class="form-control" placeholder="Введите версию MS Office" />
-                            <span asp-validation-for="OfficeVersion" class="text-danger"></span>
-                        </div>
-
-                        <!-- Поле для ключа MS Office -->
-                        <div class="mb-3">
-                            <label asp-for="OfficeKey" class="form-label">Ключ для MS Office</label>
-                            <input asp-for="OfficeKey" class="form-control" placeholder="Введите ключ для MS Office" />
-                            <span asp-validation-for="OfficeKey" class="text-danger"></span>
-                        </div>
-
-
-                        
 
                         <!-- Мониторы -->
-                        <div id="monitors" class="mb-4">
-                            <h4 class="mb-3">Мониторы</h4>
-                            @for (int i = 0; i < Model.Monitors.Count; i++)
-                            {
-                                <div class="mb-3">
-                                    <label asp-for="@Model.Monitors[i].Model" class="form-label">Модель монитора</label>
-                                    <input asp-for="@Model.Monitors[i].Model" class="form-control" />
-                                    <label asp-for="@Model.Monitors[i].Resolution" class="form-label">Разрешение</label>
-                                    <input asp-for="@Model.Monitors[i].Resolution" class="form-control" />
-                                    <input type="hidden" name="Monitors[@i].Id" value="@Model.Monitors[i].Id" />
+                        <div class="card glass-effect mt-4">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h5 class="text-info mb-0">
+                                        <i class="bi bi-display me-2"></i>Мониторы
+                                    </h5>
+                                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="addMonitor()">
+                                        <i class="bi bi-plus-circle me-1"></i>Добавить монитор
+                                    </button>
                                 </div>
-                            }
+
+                                <div id="monitors">
+                                    @for (int i = 0; i < Model.Monitors.Count; i++)
+                                    {
+                                        <div class="row g-3 mb-3 monitor-item">
+                                            <div class="col-md-5">
+                                                <label asp-for="@Model.Monitors[i].Model" class="form-label">Модель монитора</label>
+                                                <input asp-for="@Model.Monitors[i].Model" class="form-control"
+                                                       placeholder="Например: Dell U2419H" />
+                                            </div>
+                                            <div class="col-md-5">
+                                                <label asp-for="@Model.Monitors[i].Resolution" class="form-label">Разрешение</label>
+                                                <input asp-for="@Model.Monitors[i].Resolution" class="form-control"
+                                                       placeholder="Например: 1920x1080" />
+                                            </div>
+                                            <div class="col-md-2 d-flex align-items-end">
+                                                <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeMonitor(this)">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </div>
+                                            <input type="hidden" name="Monitors[@i].Id" value="@Model.Monitors[i].Id" />
+                                        </div>
+                                    }
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Кнопки управления -->
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <button type="button" class="btn btn-outline-primary me-2" onclick="addMonitor()">
-                                <i class="fas fa-plus"></i> Добавить монитор
-                            </button>
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
                             <button type="submit" class="btn btn-success">
-                                <i class="fas fa-save"></i> Создать компьютер
+                                <i class="bi bi-check-circle me-1"></i>Создать компьютер
                             </button>
+                            <a asp-action="Details" asp-controller="Department" asp-route-id="@(ViewBag.DepartmentId ?? 0)" class="btn btn-secondary">
+                                <i class="bi bi-x-circle me-1"></i>Отмена
+                            </a>
                         </div>
                     </form>
                 </div>
@@ -119,26 +187,45 @@
 </div>
 
 @section Scripts {
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+    <partial name="_ValidationScriptsPartial" />
     <script>
-        let monitorIndex = @Model.Monitors?.Count ?? 0;
+        let monitorIndex = @(Model.Monitors?.Count ?? 0);
 
         function addMonitor() {
             const monitorsDiv = document.getElementById("monitors");
             const newMonitor = document.createElement("div");
+            newMonitor.className = "row g-3 mb-3 monitor-item";
 
             newMonitor.innerHTML = `
-                        <div class="mb-3">
+                        <div class="col-md-5">
                             <label for="Monitors_${monitorIndex}__Model" class="form-label">Модель монитора</label>
-                            <input type="text" name="Monitors[${monitorIndex}].Model" id="Monitors_${monitorIndex}__Model" class="form-control" />
+                            <input type="text" name="Monitors[${monitorIndex}].Model" id="Monitors_${monitorIndex}__Model"
+                                   class="form-control" placeholder="Например: Dell U2419H" />
+                        </div>
+                        <div class="col-md-5">
                             <label for="Monitors_${monitorIndex}__Resolution" class="form-label">Разрешение</label>
-                            <input type="text" name="Monitors[${monitorIndex}].Resolution" id="Monitors_${monitorIndex}__Resolution" class="form-control" />
+                            <input type="text" name="Monitors[${monitorIndex}].Resolution" id="Monitors_${monitorIndex}__Resolution"
+                                   class="form-control" placeholder="Например: 1920x1080" />
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeMonitor(this)">
+                                <i class="bi bi-trash"></i>
+                            </button>
                         </div>
                     `;
 
             monitorsDiv.appendChild(newMonitor);
             monitorIndex++;
         }
+
+        function removeMonitor(button) {
+            const monitorItem = button.closest('.monitor-item');
+            monitorItem.remove();
+        }
+
+        // Автофокус на первое поле при загрузке
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('CustomIdentifierPart').focus();
+        });
     </script>
 }

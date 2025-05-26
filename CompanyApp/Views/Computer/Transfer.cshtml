@@ -1,43 +1,80 @@
 ﻿@model CompanyApp.Application.DTOs.TransferComputerDto
 
 @{
-    ViewData["Title"] = "Transfer Computer";
+    ViewData["Title"] = "Передача компьютера";
 }
 
 <div class="container mt-4">
     <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow-sm border-0 rounded-3">
+        <div class="col-md-8">
+            <div class="card hover-lift animate-fade-in-up">
                 <div class="card-body">
-                    <!-- Заголовок -->
-                    <h2 class="card-title mb-4" style="color: #158e3a;">Передача компьютера</h2>
+                    <h2 class="text-gradient mb-4">
+                        <i class="bi bi-arrow-left-right me-2"></i>@ViewData["Title"]
+                    </h2>
 
-                    <!-- Форма передачи компьютера -->
+                    <div class="alert alert-info mb-4">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-info-circle-fill me-3 fs-3"></i>
+                            <div>
+                                <h5 class="alert-heading">Передача компьютера</h5>
+                                <p class="mb-0">Выберите нового сотрудника для передачи компьютера. Это действие изменит ответственного за данное оборудование.</p>
+                            </div>
+                        </div>
+                    </div>
+
                     <form asp-action="Transfer" method="post">
                         @Html.AntiForgeryToken()
 
-                        <!-- Текущий сотрудник -->
-                        <div class="mb-3">
-                            <label class="form-label">Текущий сотрудник:</label>
-                            <input type="text" value="@Model.CurrentEmployeeName" class="form-control" readonly />
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card glass-effect mb-4">
+                                    <div class="card-body">
+                                        <h5 class="text-gradient mb-3">
+                                            <i class="bi bi-person-dash me-2"></i>Текущий владелец
+                                        </h5>
+                                        <div class="d-flex align-items-center">
+                                            <div class="bg-danger bg-opacity-10 rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                                                <i class="bi bi-person-fill text-danger"></i>
+                                            </div>
+                                            <div>
+                                                <div class="fw-semibold">@Model.CurrentEmployeeName</div>
+                                                <small class="text-muted">Передает компьютер</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="card glass-effect mb-4">
+                                    <div class="card-body">
+                                        <h5 class="text-gradient mb-3">
+                                            <i class="bi bi-person-plus me-2"></i>Новый владелец
+                                        </h5>
+                                        <label for="NewEmployeeId" class="form-label">Выберите сотрудника</label>
+                                        <select asp-for="NewEmployeeId" class="form-select" id="NewEmployeeId">
+                                            <option value="">Выберите сотрудника</option>
+                                            @foreach (var employee in ViewBag.Employees.Items)
+                                            {
+                                                <option value="@employee.Value">@employee.Text</option>
+                                            }
+                                        </select>
+                                        <span asp-validation-for="NewEmployeeId" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
-                        <!-- Новый сотрудник -->
-                        <div class="mb-3">
-                            <label for="NewEmployeeId" class="form-label">Новый сотрудник</label>
-                            <select asp-for="NewEmployeeId" class="form-select" asp-items="ViewBag.Employees">
-                                <option value="">Выберите сотрудника</option>
-                            </select>
-                        </div>
-
-                        <!-- Скрытое поле для ID компьютера -->
                         <input type="hidden" asp-for="ComputerId" />
+                        <input type="hidden" asp-for="CurrentEmployeeId" />
 
-                        <!-- Кнопки -->
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
-                            <button type="submit" class="btn btn-success">Передать</button>
-                            <a asp-action="GetComputersByOfficeId" asp-controller="Computer" asp-route-officeId="@ViewBag.OfficeId" class="btn btn-outline-secondary">
-                                Отмена
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="submit" class="btn btn-success" id="transferBtn" disabled>
+                                <i class="bi bi-arrow-right-circle me-1"></i>Передать компьютер
+                            </button>
+                            <a asp-action="Details" asp-controller="Computer" asp-route-id="@Model.ComputerId" class="btn btn-secondary">
+                                <i class="bi bi-x-circle me-1"></i>Отмена
                             </a>
                         </div>
                     </form>
@@ -48,5 +85,32 @@
 </div>
 
 @section Scripts {
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const employeeSelect = document.getElementById('NewEmployeeId');
+            const transferBtn = document.getElementById('transferBtn');
+
+            // Активируем кнопку только при выборе сотрудника
+            employeeSelect.addEventListener('change', function () {
+                transferBtn.disabled = !this.value;
+
+                if (this.value) {
+                    transferBtn.classList.remove('btn-success');
+                    transferBtn.classList.add('btn-primary');
+                } else {
+                    transferBtn.classList.remove('btn-primary');
+                    transferBtn.classList.add('btn-success');
+                }
+            });
+
+            // Подтверждение передачи
+            transferBtn.addEventListener('click', function (e) {
+                const selectedEmployee = employeeSelect.options[employeeSelect.selectedIndex].text;
+                if (!confirm(`Вы действительно хотите передать компьютер сотруднику "${selectedEmployee}"?`)) {
+                    e.preventDefault();
+                }
+            });
+        });
+    </script>
 }

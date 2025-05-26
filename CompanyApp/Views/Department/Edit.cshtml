@@ -3,54 +3,65 @@
 <div class="container mt-4">
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <div class="card shadow-sm border-0 rounded-3">
+            <div class="card hover-lift animate-fade-in-up">
                 <div class="card-body">
-                    <!-- Заголовок страницы -->
-                    <h2 class="card-title mb-4" style="color: #158e3a;">Редактирование отдела</h2>
-                    <!-- Форма редактирования -->
+                    <h2 class="text-gradient mb-4">
+                        <i class="bi bi-pencil-square me-2"></i>Редактирование отдела
+                    </h2>
+
                     <form asp-action="Edit" method="post">
                         @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="Id" />
 
-                        <!-- Поле для редактирования названия отдела -->
-                        <div class="mb-3">
-                            <label asp-for="Name" class="form-label">Название отдела</label>
-                            <input asp-for="Name" class="form-control" placeholder="Введите название отдела" />
-                            <span asp-validation-for="Name" class="text-danger"></span>
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <div class="card glass-effect h-100">
+                                    <div class="card-body">
+                                        <h5 class="text-primary mb-3">
+                                            <i class="bi bi-info-circle me-2"></i>Основная информация
+                                        </h5>
+
+                                        <div class="mb-3">
+                                            <label asp-for="Name" class="form-label">
+                                                <i class="bi bi-diagram-3 me-2"></i>Название отдела
+                                            </label>
+                                            <input asp-for="Name" class="form-control"
+                                                   placeholder="Введите название отдела" />
+                                            <span asp-validation-for="Name" class="text-danger"></span>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label asp-for="OfficeId" class="form-label">
+                                                <i class="bi bi-building me-2"></i>Офис
+                                            </label>
+                                            <select asp-for="OfficeId" class="form-select" asp-items="ViewBag.Offices">
+                                                <option value="">Выберите офис</option>
+                                            </select>
+                                            <span asp-validation-for="OfficeId" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="card glass-effect h-100">
+                                    <div class="card-body">
+                                        <h5 class="text-success mb-3">
+                                            <i class="bi bi-geo-alt me-2"></i>Расположение
+                                        </h5>
+
+                                        
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
-                        <!-- Выпадающий список офисов -->
-                        <div class="mb-3">
-                            <label asp-for="OfficeId" class="form-label">Офис</label>
-                            <select asp-for="OfficeId" class="form-select">
-                                <option value="">Выберите офис</option>
-                                @foreach (var office in ViewBag.Offices)
-                                {
-                                    <option value="@office.Value">@office.Text</option>
-                                }
-                            </select>
-                            <span asp-validation-for="OfficeId" class="text-danger"></span>
-                        </div>
-
-                        <!-- Выпадающий список корпусов -->
-                        <div class="mb-3">
-                            <label asp-for="BuildingId" class="form-label">Корпус</label>
-                            <select asp-for="BuildingId" class="form-select">
-                                <option value="">Выберите корпус</option>
-                                @foreach (var building in ViewBag.Buildings)
-                                {
-                                    <option value="@building.Value">@building.Text</option>
-                                }
-                            </select>
-                            <span asp-validation-for="BuildingId" class="text-danger"></span>
-                        </div>
-
-                        <!-- Кнопки сохранения и отмены -->
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <button type="submit" class="btn btn-success">
-                                <i class="fas fa-save"></i> Сохранить
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle me-1"></i>Сохранить изменения
                             </button>
-                            <a asp-controller="Building" asp-action="Details" asp-route-id="@Model.BuildingId" class="btn btn-secondary ms-2">
-                                <i class="fas fa-times"></i> Отменить
+                            <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">
+                                <i class="bi bi-x-circle me-1"></i>Отмена
                             </a>
                         </div>
                     </form>
@@ -61,5 +72,12 @@
 </div>
 
 @section Scripts {
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Фокус на поле названия при загрузке
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('Name').focus();
+            document.getElementById('Name').select();
+        });
+    </script>
 }
