@@ -951,3 +951,255 @@ footer {
 .valid-feedback {
     color: var(--dark-accent-green);
 }
+
+/* === ИСПРАВЛЕННЫЕ СТИЛИ ДЛЯ ТАБЛИЦ === */
+
+/* Основные стили таблиц */
+.table {
+    color: var(--dark-text-primary) !important;
+    background: transparent !important;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+    /* Заголовки таблиц */
+    .table th {
+        background: linear-gradient(135deg, rgba(88, 166, 255, 0.15), rgba(88, 166, 255, 0.08)) !important;
+        border-color: var(--dark-border-primary) !important;
+        color: var(--dark-accent-blue) !important;
+        font-weight: 600;
+        padding: 16px;
+        border-bottom: 2px solid var(--dark-border-primary) !important;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    /* Ячейки таблиц */
+    .table td {
+        border-color: var(--dark-border-secondary) !important;
+        padding: 16px;
+        color: var(--dark-text-primary) !important;
+        background: transparent !important;
+        border-bottom: 1px solid var(--dark-border-secondary) !important;
+        vertical-align: middle;
+    }
+
+    /* Строки таблиц */
+    .table tbody tr {
+        background: transparent !important;
+        border: none !important;
+        transition: all 0.3s ease;
+    }
+
+        .table tbody tr:nth-child(even) {
+            background: rgba(22, 27, 34, 0.3) !important;
+        }
+
+        .table tbody tr:nth-child(odd) {
+            background: rgba(13, 17, 23, 0.3) !important;
+        }
+
+        /* Эффект при наведении */
+        .table-hover tbody tr:hover,
+        .table tbody tr:hover {
+            background: rgba(88, 166, 255, 0.15) !important;
+            transform: scale(1.01);
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+            .table-hover tbody tr:hover td,
+            .table tbody tr:hover td {
+                color: var(--dark-text-primary) !important;
+                background: transparent !important;
+            }
+
+/* Контейнер таблицы */
+.table-responsive {
+    border-radius: 16px !important;
+    overflow: hidden;
+    box-shadow: var(--dark-shadow);
+    background: var(--dark-gradient-card) !important;
+    border: 1px solid var(--dark-border-primary);
+}
+
+/* Специальные стили для заголовка table-light */
+.table-light,
+.table > thead > tr > th.table-light,
+thead.table-light th {
+    background: linear-gradient(135deg, rgba(88, 166, 255, 0.2), rgba(88, 166, 255, 0.1)) !important;
+    color: var(--dark-accent-blue) !important;
+    border-color: var(--dark-border-primary) !important;
+}
+
+/* Цветные строки таблиц */
+.table-primary {
+    background: rgba(88, 166, 255, 0.15) !important;
+    border-color: rgba(88, 166, 255, 0.3) !important;
+    color: var(--dark-text-primary) !important;
+}
+
+.table-success {
+    background: rgba(86, 211, 100, 0.15) !important;
+    border-color: rgba(86, 211, 100, 0.3) !important;
+    color: var(--dark-text-primary) !important;
+}
+
+.table-warning {
+    background: rgba(242, 204, 96, 0.15) !important;
+    border-color: rgba(242, 204, 96, 0.3) !important;
+    color: var(--dark-text-primary) !important;
+}
+
+.table-danger {
+    background: rgba(248, 81, 73, 0.15) !important;
+    border-color: rgba(248, 81, 73, 0.3) !important;
+    color: var(--dark-text-primary) !important;
+}
+
+.table-info {
+    background: rgba(88, 166, 255, 0.15) !important;
+    border-color: rgba(88, 166, 255, 0.3) !important;
+    color: var(--dark-text-primary) !important;
+}
+
+.table-secondary {
+    background: rgba(125, 133, 144, 0.15) !important;
+    border-color: rgba(125, 133, 144, 0.3) !important;
+    color: var(--dark-text-primary) !important;
+}
+
+.table-dark {
+    background: var(--dark-bg-tertiary) !important;
+    border-color: var(--dark-border-primary) !important;
+    color: var(--dark-text-primary) !important;
+}
+
+/* Переопределение стилей Bootstrap для таблиц */
+.table > :not(caption) > * > * {
+    background-color: transparent !important;
+    color: var(--dark-text-primary) !important;
+}
+
+.table > thead {
+    background: transparent !important;
+}
+
+.table > tbody {
+    background: transparent !important;
+}
+
+/* Стили для таблиц с белым фоном - принудительно переопределяем */
+.table.table-striped > tbody > tr:nth-of-type(odd) > td,
+.table.table-striped > tbody > tr:nth-of-type(odd) > th {
+    background-color: rgba(22, 27, 34, 0.5) !important;
+    color: var(--dark-text-primary) !important;
+}
+
+.table.table-striped > tbody > tr:nth-of-type(even) > td,
+.table.table-striped > tbody > tr:nth-of-type(even) > th {
+    background-color: rgba(13, 17, 23, 0.5) !important;
+    color: var(--dark-text-primary) !important;
+}
+
+/* Принудительное переопределение всех белых фонов */
+.table,
+.table * {
+    background-color: transparent !important;
+}
+
+    .table th,
+    .table td {
+        color: var(--dark-text-primary) !important;
+    }
+
+    .table thead th {
+        background: linear-gradient(135deg, rgba(88, 166, 255, 0.15), rgba(88, 166, 255, 0.08)) !important;
+        color: var(--dark-accent-blue) !important;
+    }
+
+    /* Особые стили для действий в таблице */
+    .table .btn-group .btn {
+        font-size: 0.875rem;
+        padding: 6px 12px;
+        margin: 0 2px;
+    }
+
+    /* Стили для бейджей в таблицах */
+    .table .badge {
+        font-size: 0.75rem;
+        padding: 4px 8px;
+    }
+
+    /* Стили для иконок в таблицах */
+    .table .bi {
+        font-size: 1rem;
+        margin-right: 4px;
+    }
+
+/* Адаптивные стили для таблиц */
+@media (max-width: 768px) {
+    .table-responsive {
+        border-radius: 8px;
+        font-size: 0.875rem;
+    }
+
+    .table th,
+    .table td {
+        padding: 8px;
+    }
+
+    .table .btn-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+        .table .btn-group .btn {
+            margin: 2px 0;
+            font-size: 0.8rem;
+            padding: 4px 8px;
+        }
+}
+
+/* Анимация для строк таблицы */
+@keyframes tableRowHighlight {
+    0% {
+        background: rgba(88, 166, 255, 0.1);
+    }
+
+    50% {
+        background: rgba(88, 166, 255, 0.25);
+    }
+
+    100% {
+        background: rgba(88, 166, 255, 0.1);
+    }
+}
+
+.table tbody tr.highlight {
+    animation: tableRowHighlight 1s ease-in-out;
+}
+
+/* Стили для пустых таблиц */
+.table-empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--dark-text-secondary);
+}
+
+    .table-empty .empty-icon {
+        font-size: 4rem;
+        color: var(--dark-text-muted);
+        margin-bottom: 20px;
+    }
+
+    .table-empty h4 {
+        color: var(--dark-text-secondary);
+        margin-bottom: 15px;
+    }
+
+    .table-empty p {
+        color: var(--dark-text-muted);
+        margin-bottom: 25px;
+    }

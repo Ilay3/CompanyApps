@@ -37,63 +37,99 @@ namespace CompanyApp.Controllers
         [Route("~/ServiceRequest")]
         public async Task<IActionResult> Index()
         {
-            var user = await _userManager.GetUserAsync(User);
-            var isAdmin = await _userManager.IsInRoleAsync(user, "SysAdmin");
-
-            IEnumerable<ServiceRequestDto> requests;
-
-            if (isAdmin)
+            try
             {
-                requests = await _serviceRequestService.GetAllServiceRequestsAsync();
-            }
-            else
-            {
-                requests = await _serviceRequestService.GetMyServiceRequestsAsync(user.Id);
-            }
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                {
+                    return RedirectToAction("Login", "Account");
+                }
 
-            return View(requests);
+                var isAdmin = await _userManager.IsInRoleAsync(user, "SysAdmin");
+
+                IEnumerable<ServiceRequestDto> requests;
+
+                if (isAdmin)
+                {
+                    requests = await _serviceRequestService.GetAllServiceRequestsAsync();
+                }
+                else
+                {
+                    requests = await _serviceRequestService.GetMyServiceRequestsAsync(user.Id);
+                }
+
+                return View(requests);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Ошибка при загрузке заявок: {ex.Message}";
+                return View(new List<ServiceRequestDto>());
+            }
         }
 
         // GET: ServiceRequest/Details/5
         [HttpGet("Details/{id}")]
         public async Task<IActionResult> Details(int id)
         {
-            var request = await _serviceRequestService.GetServiceRequestByIdAsync(id);
-            if (request == null)
+            try
             {
-                return NotFound();
+                var request = await _serviceRequestService.GetServiceRequestByIdAsync(id);
+                if (request == null)
+                {
+                    TempData["Error"] = "Заявка не найдена";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                var currentUser = await _userManager.GetUserAsync(User);
+                if (currentUser == null)
+                {
+                    return RedirectToAction("Login", "Account");
+                }
+
+                var isAdmin = await _userManager.IsInRoleAsync(currentUser, "SysAdmin");
+
+                // Проверка доступа
+                if (!isAdmin && request.CreatedByUserId != currentUser.Id && request.AssignedToUserId != currentUser.Id)
+                {
+                    TempData["Error"] = "У вас нет доступа к этой заявке";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                ViewBag.CurrentUserId = currentUser.Id;
+                ViewBag.IsAdmin = isAdmin;
+
+                return View(request);
             }
-
-            var currentUser = await _userManager.GetUserAsync(User);
-            var isAdmin = await _userManager.IsInRoleAsync(currentUser, "SysAdmin");
-
-            // Проверка доступа
-            if (!isAdmin && request.CreatedByUserId != currentUser.Id && request.AssignedToUserId != currentUser.Id)
+            catch (Exception ex)
             {
-                return Forbid();
+                TempData["Error"] = $"Ошибка при загрузке заявки: {ex.Message}";
+                return RedirectToAction(nameof(Index));
             }
-
-            ViewBag.CurrentUserId = currentUser.Id;
-            ViewBag.IsAdmin = isAdmin;
-
-            return View(request);
         }
 
         // GET: ServiceRequest/Create
         [HttpGet("Create")]
         public async Task<IActionResult> Create(int? computerId = null, int? equipmentId = null)
         {
-            var createDto = new CreateServiceRequestDto
+            try
             {
-                ComputerId = computerId,
-                EquipmentId = equipmentId,
-                Priority = "Medium",
-                RequestType = computerId.HasValue ? "Computer" : equipmentId.HasValue ? "Equipment" : "Other"
-            };
+                var createDto = new CreateServiceRequestDto
+                {
+                    ComputerId = computerId,
+                    EquipmentId = equipmentId,
+                    Priority = "Medium",
+                    RequestType = computerId.HasValue ? "Computer" : equipmentId.HasValue ? "Equipment" : "Other"
+                };
 
-            await PrepareCreateViewBag();
+                await PrepareCreateViewBag();
 
-            return View(createDto);
+                return View(createDto);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Ошибка при подготовке формы: {ex.Message}";
+                return RedirectToAction(nameof(Index));
+            }
         }
 
         // POST: ServiceRequest/Create
@@ -101,17 +137,31 @@ namespace CompanyApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CreateServiceRequestDto dto)
         {
-            if (ModelState.IsValid)
+            try
             {
-                var user = await _userManager.GetUserAsync(User);
-                var request = await _serviceRequestService.CreateServiceRequestAsync(dto, user.Id);
+                if (ModelState.IsValid)
+                {
+                    var user = await _userManager.GetUserAsync(User);
+                    if (user == null)
+                    {
+                        return RedirectToAction("Login", "Account");
+                    }
 
-                TempData["Success"] = "Заявка успешно создана!";
-                return RedirectToAction(nameof(Details), new { id = request.Id });
+                    var request = await _serviceRequestService.CreateServiceRequestAsync(dto, user.Id);
+
+                    TempData["Success"] = "Заявка успешно создана!";
+                    return RedirectToAction(nameof(Details), new { id = request.Id });
+                }
+
+                await PrepareCreateViewBag();
+                return View(dto);
             }
-
-            await PrepareCreateViewBag();
-            return View(dto);
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Ошибка при создании заявки: {ex.Message}";
+                await PrepareCreateViewBag();
+                return View(dto);
+            }
         }
 
         // GET: ServiceRequest/UpdateStatus/5
@@ -119,44 +169,130 @@ namespace CompanyApp.Controllers
         [Authorize(Roles = "SysAdmin,Manager")]
         public async Task<IActionResult> UpdateStatus(int id)
         {
-            var request = await _serviceRequestService.GetServiceRequestByIdAsync(id);
-            if (request == null)
+            try
             {
-                return NotFound();
+                // Проверяем, что ID валидный
+                if (id <= 0)
+                {
+                    TempData["Error"] = "Неверный идентификатор заявки";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                var currentUser = await _userManager.GetUserAsync(User);
+                if (currentUser == null)
+                {
+                    return RedirectToAction("Login", "Account");
+                }
+
+                // Получаем заявку
+                var request = await _serviceRequestService.GetServiceRequestByIdAsync(id);
+                if (request == null)
+                {
+                    TempData["Error"] = $"Заявка с ID {id} не найдена";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                // Проверяем, можно ли изменять статус этой заявки
+                if (request.Status == "Closed")
+                {
+                    TempData["Warning"] = "Нельзя изменить статус закрытой заявки";
+                    return RedirectToAction(nameof(Details), new { id });
+                }
+
+                var updateDto = new UpdateServiceRequestStatusDto
+                {
+                    ServiceRequestId = id,
+                    NewStatus = request.Status
+                };
+
+                ViewBag.Request = request;
+                ViewBag.Statuses = GetStatusSelectList(request.Status);
+
+                return View(updateDto);
             }
-
-            var updateDto = new UpdateServiceRequestStatusDto
+            catch (Exception ex)
             {
-                ServiceRequestId = id,
-                NewStatus = request.Status
-            };
-
-            ViewBag.Request = request;
-            ViewBag.Statuses = GetStatusSelectList(request.Status);
-
-            return View(updateDto);
+                TempData["Error"] = $"Ошибка при загрузке формы изменения статуса: {ex.Message}";
+                return RedirectToAction(nameof(Index));
+            }
         }
 
         // POST: ServiceRequest/UpdateStatus
         [HttpPost("UpdateStatus")]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "SysAdmin,Manager")]
+        [Authorize(Roles = "SysAdmin")]
         public async Task<IActionResult> UpdateStatus(UpdateServiceRequestStatusDto dto)
         {
-            if (ModelState.IsValid)
+            try
             {
-                var user = await _userManager.GetUserAsync(User);
-                await _serviceRequestService.UpdateServiceRequestStatusAsync(dto, user.Id);
+                if (dto == null || dto.ServiceRequestId <= 0)
+                {
+                    TempData["Error"] = "Неверные данные запроса";
+                    return RedirectToAction(nameof(Index));
+                }
 
-                TempData["Success"] = "Статус заявки обновлен!";
-                return RedirectToAction(nameof(Details), new { id = dto.ServiceRequestId });
+                var currentUser = await _userManager.GetUserAsync(User);
+                if (currentUser == null)
+                {
+                    return RedirectToAction("Login", "Account");
+                }
+
+                if (ModelState.IsValid)
+                {
+                    // Проверяем существование заявки перед обновлением
+                    var existingRequest = await _serviceRequestService.GetServiceRequestByIdAsync(dto.ServiceRequestId);
+                    if (existingRequest == null)
+                    {
+                        TempData["Error"] = "Заявка не найдена";
+                        return RedirectToAction(nameof(Index));
+                    }
+
+                    // Проверяем, можно ли изменить статус
+                    if (existingRequest.Status == "Closed" && dto.NewStatus != "Closed")
+                    {
+                        TempData["Error"] = "Нельзя изменить статус закрытой заявки";
+                        return RedirectToAction(nameof(Details), new { id = dto.ServiceRequestId });
+                    }
+
+                    // Валидация статуса
+                    var validStatuses = new[] { "New", "InProgress", "Resolved", "Closed" };
+                    if (!validStatuses.Contains(dto.NewStatus))
+                    {
+                        TempData["Error"] = "Неверный статус заявки";
+                        return RedirectToAction(nameof(Details), new { id = dto.ServiceRequestId });
+                    }
+
+                    await _serviceRequestService.UpdateServiceRequestStatusAsync(dto, currentUser.Id);
+
+                    TempData["Success"] = "Статус заявки успешно обновлен!";
+                    return RedirectToAction(nameof(Details), new { id = dto.ServiceRequestId });
+                }
+
+                // Если ModelState не валидна, возвращаем форму с ошибками
+                var request = await _serviceRequestService.GetServiceRequestByIdAsync(dto.ServiceRequestId);
+                if (request == null)
+                {
+                    TempData["Error"] = "Заявка не найдена";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                ViewBag.Request = request;
+                ViewBag.Statuses = GetStatusSelectList(dto.NewStatus);
+
+                return View(dto);
             }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Ошибка при обновлении статуса: {ex.Message}";
 
-            var request = await _serviceRequestService.GetServiceRequestByIdAsync(dto.ServiceRequestId);
-            ViewBag.Request = request;
-            ViewBag.Statuses = GetStatusSelectList(request.Status);
+                // Пытаемся вернуться к детальной странице заявки
+                if (dto?.ServiceRequestId > 0)
+                {
+                    return RedirectToAction(nameof(Details), new { id = dto.ServiceRequestId });
+                }
 
-            return View(dto);
+                return RedirectToAction(nameof(Index));
+            }
         }
 
         // POST: ServiceRequest/AddComment
@@ -164,18 +300,32 @@ namespace CompanyApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddComment(AddCommentDto dto)
         {
-            if (ModelState.IsValid)
+            try
             {
-                var user = await _userManager.GetUserAsync(User);
-                await _serviceRequestService.AddCommentAsync(dto, user.Id);
+                if (ModelState.IsValid)
+                {
+                    var user = await _userManager.GetUserAsync(User);
+                    if (user == null)
+                    {
+                        return RedirectToAction("Login", "Account");
+                    }
 
-                TempData["Success"] = "Комментарий добавлен!";
+                    await _serviceRequestService.AddCommentAsync(dto, user.Id);
+
+                    TempData["Success"] = "Комментарий добавлен!";
+                }
+                else
+                {
+                    TempData["Error"] = "Ошибка при добавлении комментария. Проверьте введенные данные.";
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Ошибка при добавлении комментария: {ex.Message}";
             }
 
             return RedirectToAction(nameof(Details), new { id = dto.ServiceRequestId });
         }
-
-        
 
         private async Task PrepareCreateViewBag()
         {
@@ -208,5 +358,18 @@ namespace CompanyApp.Controllers
 
             return new SelectList(statuses, "Value", "Text", currentStatus);
         }
+
+        private string TranslateStatus(string status)
+        {
+            return status switch
+            {
+                "New" => "Новая",
+                "InProgress" => "В работе",
+                "Resolved" => "Решена",
+                "Closed" => "Закрыта",
+                _ => status
+            };
+        }
+
     }
 }

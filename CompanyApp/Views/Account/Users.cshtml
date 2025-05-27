@@ -7,67 +7,172 @@
 <div class="container mt-4">
     <div class="row">
         <div class="col-md-12">
-            <div class="card shadow-sm border-0 rounded-3">
+            <div class="card shadow-sm border-0 rounded-3 hover-lift">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h2 class="card-title" style="color: #158e3a;">Управление пользователями</h2>
+                        <div>
+                            <h2 class="text-gradient mb-2">Управление пользователями</h2>
+                            <p class="text-muted mb-0">Управление учетными записями и ролями пользователей</p>
+                        </div>
                         <a asp-action="Register" class="btn btn-success">
-                            <i class="bi bi-person-plus"></i> Новый пользователь
+                            <i class="bi bi-person-plus me-2"></i>Новый пользователь
                         </a>
                     </div>
 
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Имя</th>
-                                    <th>Email</th>
-                                    <th>Роли</th>
-                                    <th>Сотрудник</th>
-                                    <th>Статус</th>
-                                    <th>Дата создания</th>
-                                    <th>Действия</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var user in Model)
-                                {
-                                    <tr id="user-row-@user.Id">
-                                        <td>@user.FullName</td>
-                                        <td>@user.Email</td>
-                                        <td>
-                                            @foreach (var role in user.Roles)
-                                            {
-                                                <span class="badge bg-primary">@role</span>
-                                            }
-                                        </td>
-                                        <td>@(user.EmployeeName ?? "Не назначен")</td>
-                                        <td>
-                                            @if (user.IsActive)
-                                            {
-                                                <span class="badge bg-success">Активен</span>
-                                            }
-                                            else
-                                            {
-                                                <span class="badge bg-danger">Заблокирован</span>
-                                            }
-                                        </td>
-                                        <td>@user.CreatedAt.ToString("dd.MM.yyyy")</td>
-                                        <td>
-                                            <div class="btn-group" role="group">
-                                                <a asp-action="EditUser" asp-route-id="@user.Id" class="btn btn-sm btn-outline-primary">
-                                                    <i class="bi bi-pencil"></i>
-                                                </a>
-                                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmDelete('@user.Id', '@user.FullName')">
-                                                    <i class="bi bi-trash"></i>
-                                                </button>
-                                            </div>
-                                        </td>
+                    @if (TempData["Success"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="bi bi-check-circle me-2"></i>
+                            @TempData["Success"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    @if (TempData["Error"] != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            @TempData["Error"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    @if (Model != null && Model.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">
+                                            <i class="bi bi-person me-2"></i>Имя
+                                        </th>
+                                        <th scope="col">
+                                            <i class="bi bi-envelope me-2"></i>Email
+                                        </th>
+                                        <th scope="col">
+                                            <i class="bi bi-shield-check me-2"></i>Роли
+                                        </th>
+                                        <th scope="col">
+                                            <i class="bi bi-people me-2"></i>Сотрудник
+                                        </th>
+                                        <th scope="col">
+                                            <i class="bi bi-activity me-2"></i>Статус
+                                        </th>
+                                        <th scope="col">
+                                            <i class="bi bi-calendar3 me-2"></i>Дата создания
+                                        </th>
+                                        <th scope="col" class="text-center">
+                                            <i class="bi bi-gear me-2"></i>Действия
+                                        </th>
                                     </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
+                                </thead>
+                                <tbody>
+                                    @foreach (var user in Model)
+                                    {
+                                        <tr id="user-row-@user.Id" class="align-middle">
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                                        <i class="bi bi-person-fill text-primary"></i>
+                                                    </div>
+                                                    <div>
+                                                        <div class="fw-semibold">@user.FullName</div>
+                                                        <small class="text-muted">ID: @user.Id.Substring(0, 8)...</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="text-break">@user.Email</div>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex flex-wrap gap-1">
+                                                    @foreach (var role in user.Roles)
+                                                    {
+                                                        var roleData = role switch
+                                                        {
+                                                            "SysAdmin" => new { Class = "bg-danger", Text = "Администратор", Icon = "bi-shield-fill-exclamation" },
+                                                            "Manager" => new { Class = "bg-primary", Text = "Руководитель", Icon = "bi-person-badge" },
+                                                            "Accountant" => new { Class = "bg-success", Text = "Бухгалтер", Icon = "bi-calculator" },
+                                                            "User" => new { Class = "bg-secondary", Text = "Пользователь", Icon = "bi-person" },
+                                                            _ => new { Class = "bg-dark", Text = role, Icon = "bi-question-circle" }
+                                                        };
+                                                        <span class="badge @roleData.Class">
+                                                            <i class="@roleData.Icon me-1"></i>
+                                                            @roleData.Text
+                                                        </span>
+                                                    }
+                                                </div>
+                                            </td>
+                                            <td>
+                                                @if (!string.IsNullOrEmpty(user.EmployeeName))
+                                                {
+                                                    <div class="d-flex align-items-center">
+                                                        <i class="bi bi-person-check text-success me-2"></i>
+                                                        @user.EmployeeName
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <div class="text-muted">
+                                                        <i class="bi bi-person-dash me-2"></i>
+                                                        Не назначен
+                                                    </div>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (user.IsActive)
+                                                {
+                                                    <span class="badge bg-success">
+                                                        <i class="bi bi-check-circle me-1"></i>
+                                                        Активен
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-danger">
+                                                        <i class="bi bi-x-circle me-1"></i>
+                                                        Заблокирован
+                                                    </span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <div>@user.CreatedAt.ToString("dd.MM.yyyy")</div>
+                                                <small class="text-muted">@user.CreatedAt.ToString("HH:mm")</small>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <a asp-action="EditUser" asp-route-id="@user.Id"
+                                                       class="btn btn-outline-primary btn-sm"
+                                                       title="Редактировать пользователя">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </a>
+                                                    <button type="button"
+                                                            class="btn btn-outline-danger btn-sm"
+                                                            onclick="confirmDelete('@user.Id', '@user.FullName')"
+                                                            title="Удалить пользователя">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <div class="mb-4">
+                                <i class="bi bi-people text-muted" style="font-size: 4rem;"></i>
+                            </div>
+                            <h4 class="text-muted">Пользователи отсутствуют</h4>
+                            <p class="text-muted mb-4">Создайте первого пользователя системы</p>
+                            <a asp-action="Register" class="btn btn-primary">
+                                <i class="bi bi-person-plus me-2"></i> Создать пользователя
+                            </a>
+                        </div>
+                    }
                 </div>
             </div>
         </div>
@@ -79,22 +184,46 @@
     <script>
         function confirmDelete(userId, userName) {
             Swal.fire({
-                title: 'Вы уверены?',
-                text: `Вы действительно хотите удалить пользователя ${userName}?`,
+                title: 'Подтвердите удаление',
+                text: `Вы действительно хотите удалить пользователя "${userName}"?`,
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Да, удалить!',
-                cancelButtonText: 'Отмена'
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: '<i class="bi bi-trash me-1"></i> Да, удалить!',
+                cancelButtonText: '<i class="bi bi-x-circle me-1"></i> Отмена',
+                background: 'var(--dark-bg-card)',
+                color: 'var(--dark-text-primary)',
+                customClass: {
+                    popup: 'glass-effect',
+                    confirmButton: 'btn btn-danger',
+                    cancelButton: 'btn btn-secondary'
+                }
             }).then((result) => {
                 if (result.isConfirmed) {
-                    deleteUser(userId);
+                    deleteUser(userId, userName);
                 }
             });
         }
 
-        function deleteUser(userId) {
+        function deleteUser(userId, userName) {
+            // Показываем индикатор загрузки
+            Swal.fire({
+                title: 'Удаление...',
+                text: 'Пожалуйста, подождите',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                showConfirmButton: false,
+                background: 'var(--dark-bg-card)',
+                color: 'var(--dark-text-primary)',
+                customClass: {
+                    popup: 'glass-effect'
+                },
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
             $.ajax({
                 url: '@Url.Action("DeleteUser", "Account")',
                 type: 'POST',
@@ -106,33 +235,68 @@
                     if (response.success) {
                         Swal.fire({
                             title: 'Удалено!',
-                            text: response.message,
+                            text: `Пользователь "${userName}" успешно удален`,
                             icon: 'success',
-                            timer: 2000,
-                            showConfirmButton: false
+                            timer: 3000,
+                            showConfirmButton: false,
+                            background: 'var(--dark-bg-card)',
+                            color: 'var(--dark-text-primary)',
+                            customClass: {
+                                popup: 'glass-effect'
+                            }
                         });
 
-                        // Удаляем строку из таблицы
-                        $('#user-row-' + userId).fadeOut('slow', function () {
+                        // Плавно удаляем строку из таблицы
+                        $('#user-row-' + userId).addClass('highlight').fadeOut('slow', function () {
                             $(this).remove();
+
+                            // Проверяем, остались ли пользователи
+                            if ($('tbody tr').length === 0) {
+                                location.reload();
+                            }
                         });
                     } else {
                         Swal.fire({
                             title: 'Ошибка!',
-                            text: response.message,
-                            icon: 'error'
+                            text: response.message || 'Произошла ошибка при удалении пользователя',
+                            icon: 'error',
+                            background: 'var(--dark-bg-card)',
+                            color: 'var(--dark-text-primary)',
+                            customClass: {
+                                popup: 'glass-effect',
+                                confirmButton: 'btn btn-primary'
+                            }
                         });
                     }
                 },
-                error: function () {
+                error: function (xhr, status, error) {
+                    console.error('Ajax error:', xhr.responseText);
                     Swal.fire({
-                        title: 'Ошибка!',
-                        text: 'Произошла ошибка при удалении пользователя',
-                        icon: 'error'
+                        title: 'Ошибка сети!',
+                        text: 'Не удалось подключиться к серверу. Проверьте соединение и попробуйте снова.',
+                        icon: 'error',
+                        background: 'var(--dark-bg-card)',
+                        color: 'var(--dark-text-primary)',
+                        customClass: {
+                            popup: 'glass-effect',
+                            confirmButton: 'btn btn-primary'
+                        }
                     });
                 }
             });
         }
+
+        // Подсветка строки при загрузке страницы (если есть успешное сообщение)
+        $(document).ready(function () {
+            if ('@TempData["Success"]') {
+                setTimeout(function () {
+                    $('tbody tr:first').addClass('highlight');
+                    setTimeout(function () {
+                        $('tbody tr:first').removeClass('highlight');
+                    }, 2000);
+                }, 500);
+            }
+        });
     </script>
 
     <!-- Добавляем токен для AJAX запросов -->

@@ -1,0 +1,200 @@
+﻿/* Принудительное исправление белых таблиц - подключать ПОСЛЕ всех остальных CSS */
+
+/* Переопределяем ВСЕ возможные белые фоны таблиц */
+.table,
+.table *,
+.table thead,
+.table tbody,
+.table tfoot,
+.table tr,
+.table th,
+.table td {
+    background-color: transparent !important;
+    background: transparent !important;
+}
+
+    /* Принудительно задаем цвета текста */
+    .table,
+    .table th,
+    .table td,
+    .table * {
+        color: #f0f6fc !important;
+    }
+
+        /* Заголовки таблиц */
+        .table thead th,
+        .table > thead > tr > th {
+            background: linear-gradient(135deg, rgba(88, 166, 255, 0.2), rgba(88, 166, 255, 0.1)) !important;
+            color: #58a6ff !important;
+            border-bottom: 2px solid #30363d !important;
+            font-weight: 600;
+        }
+
+        /* Строки таблиц */
+        .table tbody tr:nth-child(even),
+        .table > tbody > tr:nth-child(even) {
+            background: rgba(22, 27, 34, 0.4) !important;
+        }
+
+        .table tbody tr:nth-child(odd),
+        .table > tbody > tr:nth-child(odd) {
+            background: rgba(13, 17, 23, 0.4) !important;
+        }
+
+        /* Эффект при наведении */
+        .table tbody tr:hover,
+        .table > tbody > tr:hover,
+        .table-hover tbody tr:hover {
+            background: rgba(88, 166, 255, 0.2) !important;
+            color: #f0f6fc !important;
+        }
+
+            .table tbody tr:hover td,
+            .table > tbody > tr:hover > td,
+            .table-hover tbody tr:hover td {
+                background: transparent !important;
+                color: #f0f6fc !important;
+            }
+
+/* Контейнер таблицы */
+.table-responsive {
+    background: linear-gradient(145deg, rgba(22, 27, 34, 0.98) 0%, rgba(13, 17, 23, 0.95) 100%) !important;
+    border: 1px solid #30363d !important;
+    border-radius: 16px !important;
+    backdrop-filter: blur(20px);
+}
+
+/* Исправляем специально для Bootstrap table-light */
+.table-light,
+.table-light th,
+.table-light td,
+.table > thead.table-light > tr > th {
+    background: linear-gradient(135deg, rgba(88, 166, 255, 0.15), rgba(88, 166, 255, 0.08)) !important;
+    color: #58a6ff !important;
+}
+
+/* Бейджи в таблицах */
+.table .badge {
+    opacity: 1 !important;
+}
+
+    .table .badge.bg-primary {
+        background: #58a6ff !important;
+        color: white !important;
+    }
+
+    .table .badge.bg-success {
+        background: #56d364 !important;
+        color: white !important;
+    }
+
+    .table .badge.bg-warning {
+        background: #f2cc60 !important;
+        color: #24292f !important;
+    }
+
+    .table .badge.bg-danger {
+        background: #f85149 !important;
+        color: white !important;
+    }
+
+    .table .badge.bg-info {
+        background: #58a6ff !important;
+        color: white !important;
+    }
+
+    .table .badge.bg-secondary {
+        background: #7d8590 !important;
+        color: white !important;
+    }
+
+/* Кнопки в таблицах */
+.table .btn-outline-primary {
+    border-color: #58a6ff !important;
+    color: #58a6ff !important;
+    background: transparent !important;
+}
+
+    .table .btn-outline-primary:hover {
+        background: #58a6ff !important;
+        color: white !important;
+    }
+
+.table .btn-outline-danger {
+    border-color: #f85149 !important;
+    color: #f85149 !important;
+    background: transparent !important;
+}
+
+    .table .btn-outline-danger:hover {
+        background: #f85149 !important;
+        color: white !important;
+    }
+
+/* Иконки в таблицах */
+.table .bi {
+    color: inherit !important;
+}
+
+/* Ссылки в таблицах */
+.table a {
+    color: #79c0ff !important;
+    text-decoration: none;
+}
+
+    .table a:hover {
+        color: #58a6ff !important;
+        text-decoration: underline;
+    }
+
+/* Текст с мутированием в таблицах */
+.table .text-muted,
+.table .text-muted * {
+    color: #7d8590 !important;
+}
+
+/* Дополнительные исправления для конкретных случаев */
+.table .fw-semibold,
+.table .fw-bold {
+    color: #f0f6fc !important;
+}
+
+.table small {
+    color: #7d8590 !important;
+}
+
+/* Исправления для flexbox элементов в таблицах */
+.table .d-flex * {
+    color: inherit !important;
+}
+
+/* Принудительное исправление для любых вложенных элементов */
+.table * * {
+    background: transparent !important;
+}
+
+/* Исправления для конкретных Bootstrap классов */
+.table .bg-primary.bg-opacity-10 {
+    background: rgba(88, 166, 255, 0.1) !important;
+}
+
+.table .bg-success.bg-opacity-10 {
+    background: rgba(86, 211, 100, 0.1) !important;
+}
+
+.table .rounded-circle {
+    background: rgba(88, 166, 255, 0.1) !important;
+}
+
+/* Медиа-запросы для мобильных устройств */
+@media (max-width: 768px) {
+    .table-responsive {
+        border-radius: 8px !important;
+    }
+
+    .table th,
+    .table td {
+        padding: 8px !important;
+        font-size: 0.875rem;
+    }
+}

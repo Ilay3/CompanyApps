@@ -4,6 +4,19 @@
 @{
     ViewData["Title"] = "Изменение статуса заявки";
     var request = ViewBag.Request as ServiceRequestDto;
+
+    // Функция для перевода статуса
+    string TranslateStatus(string status)
+    {
+        return status switch
+        {
+            "New" => "Новая",
+            "InProgress" => "В работе",
+            "Resolved" => "Решена",
+            "Closed" => "Закрыта",
+            _ => status
+        };
+    }
 }
 
 <div class="container mt-4">
@@ -15,7 +28,7 @@
 
                     <div class="alert alert-info mb-4">
                         <strong>Тема:</strong> @request.Title<br />
-                        <strong>Текущий статус:</strong> @request.Status
+                        <strong>Текущий статус:</strong> @TranslateStatus(request.Status)
                     </div>
 
                     <form asp-action="UpdateStatus" method="post">
@@ -61,11 +74,20 @@
     <script>
         document.getElementById('NewStatus').addEventListener('change', function () {
             var resolutionSection = document.getElementById('resolutionSection');
-            if (this.value === 'Resolved' || this.value === 'Closed') {
+            var selectedValue = this.value;
+
+            // Проверяем значение статуса
+            if (selectedValue === 'Resolved' || selectedValue === 'Closed') {
                 resolutionSection.style.display = 'block';
             } else {
                 resolutionSection.style.display = 'none';
             }
+        });
+
+        // Вызываем событие изменения при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function () {
+            var event = new Event('change');
+            document.getElementById('NewStatus').dispatchEvent(event);
         });
     </script>
 }

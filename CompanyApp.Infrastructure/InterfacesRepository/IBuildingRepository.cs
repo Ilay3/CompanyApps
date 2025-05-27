@@ -11,7 +11,5 @@ namespace CompanyApp.Infrastructure.InterfacesRepository
     {
         Task<IEnumerable<Building>> GetBuildingsByOfficeIdAsync(int officeId);
         Task<Building> GetBuildingByIdAsync(int id);
-
-
     }
 }
