@@ -1,0 +1,149 @@
+﻿@model CompanyApp.Application.DTOs.ServiceRequestDto
+
+@{
+    ViewData["Title"] = "Удаление заявки";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        Подтверждение удаления заявки №@Model.Id
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <i class="bi bi-warning me-2"></i>
+                        Вы действительно хотите удалить эту заявку на обслуживание?
+                        <strong>Это действие нельзя отменить!</strong>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6 class="card-title">Основная информация:</h6>
+                                    <dl class="mb-0">
+                                        <dt>Тема:</dt>
+                                        <dd>@Model.Title</dd>
+
+                                        <dt>Тип заявки:</dt>
+                                        <dd>
+                                            @{
+                                                var typeText = Model.RequestType switch
+                                                {
+                                                    "Computer" => "Компьютер",
+                                                    "Equipment" => "Оборудование",
+                                                    "Software" => "Программное обеспечение",
+                                                    _ => "Другое"
+                                                };
+                                            }
+                                            @typeText
+                                        </dd>
+
+                                        <dt>Приоритет:</dt>
+                                        <dd>
+                                            @{
+                                                var priorityData = Model.Priority switch
+                                                {
+                                                    "Critical" => new { Class = "bg-danger", Text = "Критический" },
+                                                    "High" => new { Class = "bg-warning", Text = "Высокий" },
+                                                    "Medium" => new { Class = "bg-info", Text = "Средний" },
+                                                    _ => new { Class = "bg-secondary", Text = "Низкий" }
+                                                };
+                                            }
+                                            <span class="badge @priorityData.Class">@priorityData.Text</span>
+                                        </dd>
+
+                                        <dt>Статус:</dt>
+                                        <dd>
+                                            @{
+                                                var statusData = Model.Status switch
+                                                {
+                                                    "New" => new { Class = "bg-primary", Text = "Новая" },
+                                                    "InProgress" => new { Class = "bg-warning", Text = "В работе" },
+                                                    "Resolved" => new { Class = "bg-success", Text = "Решена" },
+                                                    "Closed" => new { Class = "bg-secondary", Text = "Закрыта" },
+                                                    _ => new { Class = "bg-secondary", Text = Model.Status }
+                                                };
+                                            }
+                                            <span class="badge @statusData.Class">@statusData.Text</span>
+                                        </dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6 class="card-title">Дополнительная информация:</h6>
+                                    <dl class="mb-0">
+                                        <dt>Создатель:</dt>
+                                        <dd>@Model.CreatedByUserName</dd>
+
+                                        <dt>Дата создания:</dt>
+                                        <dd>@Model.CreatedDate.ToString("dd.MM.yyyy HH:mm")</dd>
+
+                                        @if (Model.AssignedToUserName != null)
+                                        {
+                                            <dt>Исполнитель:</dt>
+                                            <dd>@Model.AssignedToUserName</dd>
+                                        }
+
+                                        @if (Model.ResolvedDate.HasValue)
+                                        {
+                                            <dt>Дата решения:</dt>
+                                            <dd>@Model.ResolvedDate.Value.ToString("dd.MM.yyyy HH:mm")</dd>
+                                        }
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(Model.Description))
+                    {
+                        <div class="mt-3">
+                            <strong>Описание:</strong>
+                            <p class="text-muted">@Model.Description</p>
+                        </div>
+                    }
+
+                    @if (Model.Computer != null)
+                    {
+                        <div class="mt-3 p-3" style="background: rgba(0, 122, 255, 0.1); border-radius: 8px;">
+                            <strong>Связанный компьютер:</strong>
+                            <span>@Model.Computer.Model - @Model.Computer.UniqueIdentifier</span>
+                        </div>
+                    }
+
+                    @if (Model.Equipment != null)
+                    {
+                        <div class="mt-3 p-3" style="background: rgba(255, 149, 0, 0.1); border-radius: 8px;">
+                            <strong>Связанное оборудование:</strong>
+                            <span>@Model.Equipment.Type - @Model.Equipment.Model</span>
+                        </div>
+                    }
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <form asp-action="Delete" method="post">
+                            <input type="hidden" asp-for="Id" />
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-trash me-1"></i>
+                                Да, удалить заявку
+                            </button>
+                        </form>
+                        <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">
+                            <i class="bi bi-x-circle me-1"></i>
+                            Отмена
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

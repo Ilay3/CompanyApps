@@ -46,6 +46,12 @@ namespace CompanyApp.Application.Services
             var equipment = await _equipmentRepository.GetEquipmentByIdAsync(id);
             return _mapper.Map<CRUDEquipmentDto>(equipment);
         }
+
+        public async Task<IEnumerable<CRUDEquipmentDto>> GetAllEquipmentsAsync()
+        {
+            var equipments = await _equipmentRepository.GetAllEquipmentsAsync();
+            return _mapper.Map<IEnumerable<CRUDEquipmentDto>>(equipments);
+        }
     }
 
 }

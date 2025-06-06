@@ -1,4 +1,6 @@
-﻿using CompanyApp.Application.DTOs;
+﻿
+
+using CompanyApp.Application.DTOs;
 using CompanyApp.Application.InterfacesService;
 using CompanyApp.Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -23,7 +25,7 @@ namespace CompanyApp.Controllers
             _equipmentService = equipmentService;
         }
 
-        // GET: Maintenance или Maintenance/Index
+        // GET: Maintenance
         [HttpGet]
         [HttpGet("Index")]
         [Route("~/Maintenance")]
@@ -34,7 +36,7 @@ namespace CompanyApp.Controllers
         }
 
         // GET: Maintenance/Details/5
-        [HttpGet("Details/{id}")]
+        [HttpGet("Details/{id:int}")]
         public async Task<IActionResult> Details(int id)
         {
             var maintenanceRecord = await _maintenanceService.GetMaintenanceRecordByIdAsync(id);
@@ -59,14 +61,12 @@ namespace CompanyApp.Controllers
                 Status = "Pending"
             };
 
-            // Если задан computerId, получаем данные компьютера
             if (computerId.HasValue)
             {
                 var computer = await _computerService.GetComputerByIdAsync(computerId.Value);
                 ViewBag.ItemName = $"Компьютер: {computer?.Model}";
                 ViewBag.ItemType = "Computer";
             }
-            // Если задан equipmentId, получаем данные оборудования
             else if (equipmentId.HasValue)
             {
                 var equipment = await _equipmentService.GetEquipmentByIdAsync(equipmentId.Value);
@@ -75,12 +75,21 @@ namespace CompanyApp.Controllers
             }
             else
             {
-                // Загружаем списки компьютеров и оборудования для выпадающих списков
-                var computers = await _computerService.GetComputersByOfficeIdAsync(1); // Заглушка
+                var computers = await _computerService.GetComputersByOfficeIdAsync(1);
                 ViewBag.Computers = new SelectList(computers, "Id", "Model");
 
-                var equipments = new List<CRUDEquipmentDto>(); // Заглушка, в реальном приложении нужно получить список оборудования
-                ViewBag.Equipments = new SelectList(equipments, "Id", "Model");
+                try
+                {
+                    var allEquipment = await _equipmentService.GetAllEquipmentsAsync();
+                    ViewBag.Equipments = new SelectList(allEquipment.Select(e => new {
+                        Id = e.Id,
+                        Model = $"{e.Type} - {e.Model}"
+                    }), "Id", "Model");
+                }
+                catch
+                {
+                    ViewBag.Equipments = new SelectList(new List<object>(), "Id", "Model");
+                }
 
                 ViewBag.ItemType = "None";
             }
@@ -91,13 +100,12 @@ namespace CompanyApp.Controllers
         // POST: Maintenance/Create
         [HttpPost("Create")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CreateMaintenanceRecordDto createDto)
+        public async Task<IActionResult> CreatePost(CreateMaintenanceRecordDto createDto)
         {
             if (ModelState.IsValid)
             {
                 var recordDto = await _maintenanceService.CreateMaintenanceRecordAsync(createDto);
 
-                // Перенаправляем в зависимости от типа обслуживаемого оборудования
                 if (createDto.ComputerId.HasValue)
                 {
                     return RedirectToAction("Details", "Computer", new { id = createDto.ComputerId.Value });
@@ -112,35 +120,12 @@ namespace CompanyApp.Controllers
                 }
             }
 
-            // В случае ошибки валидации, возвращаем представление с теми же данными
-            if (createDto.ComputerId.HasValue)
-            {
-                var computer = await _computerService.GetComputerByIdAsync(createDto.ComputerId.Value);
-                ViewBag.ItemName = $"Компьютер: {computer?.Model}";
-                ViewBag.ItemType = "Computer";
-            }
-            else if (createDto.EquipmentId.HasValue)
-            {
-                var equipment = await _equipmentService.GetEquipmentByIdAsync(createDto.EquipmentId.Value);
-                ViewBag.ItemName = $"Оборудование: {equipment?.Type} {equipment?.Model}";
-                ViewBag.ItemType = "Equipment";
-            }
-            else
-            {
-                var computers = await _computerService.GetComputersByOfficeIdAsync(1); // Заглушка
-                ViewBag.Computers = new SelectList(computers, "Id", "Model");
-
-                var equipments = new List<CRUDEquipmentDto>(); // Заглушка
-                ViewBag.Equipments = new SelectList(equipments, "Id", "Model");
-
-                ViewBag.ItemType = "None";
-            }
-
-            return View(createDto);
+            // При ошибке возвращаем форму
+            return View("Create", createDto);
         }
 
         // GET: Maintenance/Edit/5
-        [HttpGet("Edit/{id}")]
+        [HttpGet("Edit/{id:int}")]
         public async Task<IActionResult> Edit(int id)
         {
             var maintenanceRecord = await _maintenanceService.GetMaintenanceRecordByIdAsync(id);
@@ -149,7 +134,6 @@ namespace CompanyApp.Controllers
                 return NotFound();
             }
 
-            // Загружаем название обслуживаемого оборудования для отображения
             if (maintenanceRecord.ComputerId.HasValue)
             {
                 var computer = await _computerService.GetComputerByIdAsync(maintenanceRecord.ComputerId.Value);
@@ -167,9 +151,9 @@ namespace CompanyApp.Controllers
         }
 
         // POST: Maintenance/Edit/5
-        [HttpPost("Edit/{id}")]
+        [HttpPost("Edit/{id:int}")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, MaintenanceRecordDto maintenanceRecordDto)
+        public async Task<IActionResult> EditPost(int id, MaintenanceRecordDto maintenanceRecordDto)
         {
             if (id != maintenanceRecordDto.Id)
             {
@@ -180,7 +164,6 @@ namespace CompanyApp.Controllers
             {
                 await _maintenanceService.UpdateMaintenanceRecordAsync(maintenanceRecordDto);
 
-                // Перенаправляем в зависимости от типа обслуживаемого оборудования
                 if (maintenanceRecordDto.ComputerId.HasValue)
                 {
                     return RedirectToAction("Details", "Computer", new { id = maintenanceRecordDto.ComputerId.Value });
@@ -195,25 +178,65 @@ namespace CompanyApp.Controllers
                 }
             }
 
-            // В случае ошибки валидации
-            if (maintenanceRecordDto.ComputerId.HasValue)
-            {
-                var computer = await _computerService.GetComputerByIdAsync(maintenanceRecordDto.ComputerId.Value);
-                ViewBag.ItemName = $"Компьютер: {computer?.Model}";
-                ViewBag.ItemType = "Computer";
-            }
-            else if (maintenanceRecordDto.EquipmentId.HasValue)
-            {
-                var equipment = await _equipmentService.GetEquipmentByIdAsync(maintenanceRecordDto.EquipmentId.Value);
-                ViewBag.ItemName = $"Оборудование: {equipment?.Type} {equipment?.Model}";
-                ViewBag.ItemType = "Equipment";
-            }
+            return View("Edit", maintenanceRecordDto);
+        }
 
-            return View(maintenanceRecordDto);
+        // POST: Maintenance/MarkAsCompleted/5
+        [HttpPost("MarkAsCompleted/{id:int}")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> MarkAsCompleted(int id)
+        {
+            try
+            {
+                var maintenanceRecord = await _maintenanceService.GetMaintenanceRecordByIdAsync(id);
+                if (maintenanceRecord == null)
+                {
+                    TempData["Error"] = "Запись о техническом обслуживании не найдена";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                maintenanceRecord.Status = "Completed";
+                await _maintenanceService.UpdateMaintenanceRecordAsync(maintenanceRecord);
+
+                TempData["Success"] = "Техническое обслуживание помечено как завершенное";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Ошибка при обновлении статуса: {ex.Message}";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+        }
+
+        // POST: Maintenance/MarkAsCancelled/5  
+        [HttpPost("MarkAsCancelled/{id:int}")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> MarkAsCancelled(int id)
+        {
+            try
+            {
+                var maintenanceRecord = await _maintenanceService.GetMaintenanceRecordByIdAsync(id);
+                if (maintenanceRecord == null)
+                {
+                    TempData["Error"] = "Запись о техническом обслуживании не найдена";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                maintenanceRecord.Status = "Cancelled";
+                await _maintenanceService.UpdateMaintenanceRecordAsync(maintenanceRecord);
+
+                TempData["Success"] = "Техническое обслуживание отменено";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Ошибка при обновлении статуса: {ex.Message}";
+                return RedirectToAction(nameof(Details), new { id });
+            }
         }
 
         // GET: Maintenance/Delete/5
-        [HttpGet("Delete/{id}")]
+        [HttpGet("Delete/{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
             var maintenanceRecord = await _maintenanceService.GetMaintenanceRecordByIdAsync(id);
@@ -225,14 +248,14 @@ namespace CompanyApp.Controllers
         }
 
         // POST: Maintenance/Delete/5
-        [HttpPost("Delete/{id}"), ActionName("Delete")]
+        [HttpPost("Delete/{id:int}")]
+        [ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var maintenanceRecord = await _maintenanceService.GetMaintenanceRecordByIdAsync(id);
             await _maintenanceService.DeleteMaintenanceRecordAsync(id);
 
-            // Перенаправляем в зависимости от типа обслуживаемого оборудования
             if (maintenanceRecord.ComputerId.HasValue)
             {
                 return RedirectToAction("Details", "Computer", new { id = maintenanceRecord.ComputerId.Value });
@@ -247,30 +270,12 @@ namespace CompanyApp.Controllers
             }
         }
 
-        // GET: Maintenance/ForComputer/5
-        [HttpGet("ForComputer/{id}")]
-        public async Task<IActionResult> ForComputer(int id)
+        // GET: Maintenance/Dashboard
+        [HttpGet("Dashboard")]
+        public async Task<IActionResult> Dashboard()
         {
-            var maintenanceRecords = await _maintenanceService.GetMaintenanceRecordsByComputerIdAsync(id);
-            var computer = await _computerService.GetComputerByIdAsync(id);
-
-            ViewBag.ComputerId = id;
-            ViewBag.ComputerModel = computer?.Model;
-
-            return View(maintenanceRecords);
-        }
-
-        // GET: Maintenance/ForEquipment/5
-        [HttpGet("ForEquipment/{id}")]
-        public async Task<IActionResult> ForEquipment(int id)
-        {
-            var maintenanceRecords = await _maintenanceService.GetMaintenanceRecordsByEquipmentIdAsync(id);
-            var equipment = await _equipmentService.GetEquipmentByIdAsync(id);
-
-            ViewBag.EquipmentId = id;
-            ViewBag.EquipmentModel = equipment?.Model;
-
-            return View(maintenanceRecords);
+            var summary = await _maintenanceService.GetMaintenanceSummaryAsync();
+            return View(summary);
         }
 
         // GET: Maintenance/Upcoming
@@ -280,14 +285,6 @@ namespace CompanyApp.Controllers
             var upcomingMaintenance = await _maintenanceService.GetUpcomingMaintenanceAsync(days);
             ViewBag.Days = days;
             return View(upcomingMaintenance);
-        }
-
-        // GET: Maintenance/Dashboard
-        [HttpGet("Dashboard")]
-        public async Task<IActionResult> Dashboard()
-        {
-            var summary = await _maintenanceService.GetMaintenanceSummaryAsync();
-            return View(summary);
         }
     }
 }

@@ -4,6 +4,7 @@ using CompanyApp.Application.DTOs;
 using CompanyApp.Core.Entities;
 using CompanyApp.Core.Interfaces;
 using CompanyApp.Infrastructure.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -15,6 +16,7 @@ using PdfSharpCore.Pdf;
 
 namespace CompanyApp.Controllers
 {
+    [Authorize]
     public class ComputerController : Controller
     {
         private readonly OfficeDbContext _context;
@@ -82,11 +84,16 @@ namespace CompanyApp.Controllers
 
 
 
+        // ИСПРАВЛЕННЫЙ метод Delete в ComputerController
         [HttpPost]
-        public async Task<IActionResult> Delete(int id, int departmentId)
+        [Route("Computer/Delete/{id:int}")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(int id, int? departmentId = null)
         {
             var computer = await _context.Computers
                 .Include(c => c.DisplayMonitors)
+                .Include(c => c.Employee)
+                    .ThenInclude(e => e.Department)
                 .FirstOrDefaultAsync(c => c.Id == id);
 
             if (computer == null)
@@ -94,11 +101,43 @@ namespace CompanyApp.Controllers
                 return NotFound();
             }
 
-            _context.DisplayMonitors.RemoveRange(computer.DisplayMonitors);
-            _context.Computers.Remove(computer);
-            await _context.SaveChangesAsync();
+            // Получаем departmentId из компьютера если не передан
+            var redirectDepartmentId = departmentId ?? computer.Employee?.DepartmentId ?? 1;
 
-            return RedirectToAction("Details", "Department", new { id = departmentId });
+            try
+            {
+                // Проверяем, есть ли связанные записи обслуживания
+                var hasMaintenanceRecords = await _context.MaintenanceRecords.AnyAsync(mr => mr.ComputerId == id);
+                if (hasMaintenanceRecords)
+                {
+                    TempData["Error"] = "Невозможно удалить компьютер, так как для него есть записи технического обслуживания.";
+                    return RedirectToAction("Details", "Department", new { id = redirectDepartmentId });
+                }
+
+                // Проверяем, есть ли связанные заявки
+                var hasServiceRequests = await _context.ServiceRequests.AnyAsync(sr => sr.ComputerId == id);
+                if (hasServiceRequests)
+                {
+                    TempData["Error"] = "Невозможно удалить компьютер, так как для него есть заявки на обслуживание.";
+                    return RedirectToAction("Details", "Department", new { id = redirectDepartmentId });
+                }
+
+                // Удаляем мониторы сначала
+                _context.DisplayMonitors.RemoveRange(computer.DisplayMonitors);
+
+                // Затем удаляем компьютер
+                _context.Computers.Remove(computer);
+
+                await _context.SaveChangesAsync();
+
+                TempData["Success"] = "Компьютер успешно удален.";
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Ошибка при удалении компьютера: {ex.Message}";
+            }
+
+            return RedirectToAction("Details", "Department", new { id = redirectDepartmentId });
         }
 
 
@@ -115,14 +154,14 @@ namespace CompanyApp.Controllers
             // Получаем выбранный OEM из формы
             var selectedOEM = Request.Form["OEMOption"].ToString();
 
-            // Проверяем и объединяем значения
+            // ИСПРАВЛЕНИЕ: Проверяем и объединяем значения с проверкой на null
             if (!string.IsNullOrEmpty(selectedOEM))
             {
-                computerDto.OSVersion = $"{computerDto.OSVersion.Trim()} {selectedOEM}".Trim();
+                computerDto.OSVersion = $"{(computerDto.OSVersion?.Trim() ?? string.Empty)} {selectedOEM}".Trim();
             }
             else
             {
-                computerDto.OSVersion = computerDto.OSVersion.Trim();
+                computerDto.OSVersion = computerDto.OSVersion?.Trim() ?? string.Empty;
             }
 
             if (!ModelState.IsValid)
@@ -153,7 +192,7 @@ namespace CompanyApp.Controllers
                 OSKey = computerDto.OSKey,
                 OfficeKey = computerDto.OfficeKey,
                 OfficeVersion = computerDto.OfficeVersion,
-                UniqueIdentifier = GenerateUniqueIdentifier(computerDto.EmployeeId, DateTime.Now, computerDto.CustomIdentifierPart) // Изменено
+                UniqueIdentifier = GenerateUniqueIdentifier(computerDto.EmployeeId, DateTime.Now, computerDto.CustomIdentifierPart ?? "DEFAULT")
             };
 
             // Добавление мониторов

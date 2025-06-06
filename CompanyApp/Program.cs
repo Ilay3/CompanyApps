@@ -15,24 +15,20 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+// ИСПРАВЛЕНИЕ: Только ОДИН DbContext с правильными настройками
 builder.Services.AddDbContext<OfficeDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-    // Настройка разделения запросов для улучшения производительности
-    options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+
+    // ВАЖНО: Используем TrackAll для корректной работы Update операций
+    options.UseQueryTrackingBehavior(QueryTrackingBehavior.TrackAll);
 
     // Включаем разделение запросов для множественных коллекций
     options.ConfigureWarnings(warnings =>
     {
         warnings.Ignore(RelationalEventId.MultipleCollectionIncludeWarning);
     });
-});
-
-
-builder.Services.AddDbContext<OfficeDbContext>(options =>
-{
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
-           .UseQueryTrackingBehavior(QueryTrackingBehavior.TrackAll);
 });
 
 // Настройка Identity

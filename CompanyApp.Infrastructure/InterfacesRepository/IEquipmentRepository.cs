@@ -12,7 +12,8 @@ namespace CompanyApp.Infrastructure.InterfacesRepository
         Task<Equipment> CreateEquipmentAsync(Equipment equipment);
         Task<Equipment> UpdateEquipmentAsync(Equipment equipment);
         Task DeleteEquipmentAsync(int id);
-        Task<Equipment> GetEquipmentByIdAsync(int id); 
+        Task<Equipment> GetEquipmentByIdAsync(int id);
+        Task<IEnumerable<Equipment>> GetAllEquipmentsAsync();
 
 
     }

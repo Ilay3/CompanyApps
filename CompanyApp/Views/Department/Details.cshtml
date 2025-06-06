@@ -1,4 +1,30 @@
 ﻿@model CompanyApp.Application.DTOs.DepartmentDto
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-2"></i>
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["Warning"] != null)
+{
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-circle me-2"></i>
+        @TempData["Warning"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
 
 <style>
     .accordion-button {
@@ -115,9 +141,15 @@
                                                     <a asp-action="Details" asp-controller="Computer" asp-route-id="@computer.Id" class="btn btn-secondary btn-sm">Подробнее</a>
                                                     <a asp-action="Edit" asp-controller="Computer" asp-route-id="@computer.Id" class="btn btn-secondary btn-sm">Редактировать</a>
                                                     <button type="button" class="btn btn-danger btn-sm" onclick="confirmDelete('@computer.Id')">Удалить</button>
-                                                    <form id="delete-form-@computer.Id" asp-action="Delete" asp-controller="Computer" asp-route-id="@computer.Id" method="post" class="d-none">
+                                                    <form action="/Computer/Delete/@computer.Id" method="post" style="display: inline;">
+                                                        @Html.AntiForgeryToken()
                                                         <input type="hidden" name="departmentId" value="@Model.Id" />
+                                                        <button type="submit" class="btn btn-outline-danger btn-sm"
+                                                                onclick="return confirm('Вы уверены, что хотите удалить этот компьютер?')">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
                                                     </form>
+
                                                 </td>
                                             </tr>
                                         }
@@ -156,9 +188,15 @@
                         <td>
                             <a asp-action="Edit" asp-controller="Equipment" asp-route-id="@equipment.Id" class="btn btn-secondary btn-sm">Редактировать</a>
                             <button type="button" class="btn btn-danger btn-sm" onclick="confirmDelete('@equipment.Id')">Удалить</button>
-                            <form id="delete-form-@equipment.Id" asp-action="Delete" asp-controller="Equipment" asp-route-id="@equipment.Id" method="post" class="d-none">
+                            <form action="/Equipment/DeleteFromDepartment/@equipment.Id" method="post" style="display: inline;">
+                                @Html.AntiForgeryToken()
                                 <input type="hidden" name="departmentId" value="@Model.Id" />
+                                <button type="submit" class="btn btn-outline-danger btn-sm"
+                                        onclick="return confirm('Вы уверены, что хотите удалить это оборудование?')">
+                                    <i class="bi bi-trash"></i>
+                                </button>
                             </form>
+
                         </td>
                     </tr>
                 }

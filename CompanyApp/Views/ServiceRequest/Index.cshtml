@@ -124,10 +124,19 @@
                                                 </div>
                                             </td>
                                             <td class="text-end px-4">
-                                                <a asp-action="Details" asp-route-id="@request.Id" class="btn btn-outline-primary btn-sm">
-                                                    <i class="bi bi-eye me-1"></i> Детали
-                                                </a>
+                                                <div class="btn-group" role="group">
+                                                    <a asp-action="Details" asp-route-id="@request.Id" class="btn btn-outline-primary btn-sm">
+                                                        <i class="bi bi-eye me-1"></i> Детали
+                                                    </a>
+                                                    @if (User.IsInRole("SysAdmin"))
+                                                    {
+                                                        <a asp-action="Delete" asp-route-id="@request.Id" class="btn btn-outline-danger btn-sm">
+                                                            <i class="bi bi-trash me-1"></i> Удалить
+                                                        </a>
+                                                    }
+                                                </div>
                                             </td>
+
                                         </tr>
                                     }
                                 </tbody>

@@ -20,6 +20,34 @@
 }
 
 <div class="container mt-4">
+    <!-- ДОБАВЛЯЕМ ОТОБРАЖЕНИЕ TEMPDATA СООБЩЕНИЙ -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle me-2"></i>
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["Warning"] != null)
+    {
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-circle me-2"></i>
+            @TempData["Warning"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card shadow-sm border-0 rounded-3">
@@ -31,7 +59,9 @@
                         <strong>Текущий статус:</strong> @TranslateStatus(request.Status)
                     </div>
 
-                    <form asp-action="UpdateStatus" method="post">
+                    <!-- ИСПРАВЛЕНИЕ: Отправляем на UpdateStatusPost -->
+                    <form action="/ServiceRequest/UpdateStatus" method="post">
+                        @Html.AntiForgeryToken()
                         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                         <input type="hidden" asp-for="ServiceRequestId" />
 
@@ -49,7 +79,7 @@
                         </div>
 
                         <div class="form-group mb-3" id="resolutionSection" style="display: none;">
-                            <label asp-for="Resolution" class="form-label">Описание решения</label>
+                            <label asp-for="Resolution" class="form-label">Описание решения <span class="text-danger">*</span></label>
                             <textarea asp-for="Resolution" class="form-control" rows="5" placeholder="Опишите, как была решена проблема"></textarea>
                             <span asp-validation-for="Resolution" class="text-danger"></span>
                         </div>
@@ -72,22 +102,46 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
+        // Отладочная информация
+        console.log('UpdateStatus view loaded');
+        console.log('ServiceRequestId:', @Model.ServiceRequestId);
+        console.log('Current NewStatus:', '@Model.NewStatus');
+
         document.getElementById('NewStatus').addEventListener('change', function () {
             var resolutionSection = document.getElementById('resolutionSection');
             var selectedValue = this.value;
 
+            console.log('Status changed to:', selectedValue);
+
             // Проверяем значение статуса
             if (selectedValue === 'Resolved' || selectedValue === 'Closed') {
                 resolutionSection.style.display = 'block';
+                console.log('Resolution section shown');
             } else {
                 resolutionSection.style.display = 'none';
+                console.log('Resolution section hidden');
             }
         });
 
         // Вызываем событие изменения при загрузке страницы
         document.addEventListener('DOMContentLoaded', function () {
-            var event = new Event('change');
-            document.getElementById('NewStatus').dispatchEvent(event);
+            var statusSelect = document.getElementById('NewStatus');
+            if (statusSelect) {
+                var event = new Event('change');
+                statusSelect.dispatchEvent(event);
+            }
+        });
+
+        // Отладка отправки формы
+        document.querySelector('form').addEventListener('submit', function(e) {
+            console.log('Form submitting...');
+            console.log('Action:', this.action);
+            console.log('Method:', this.method);
+
+            var formData = new FormData(this);
+            for (let [key, value] of formData.entries()) {
+                console.log(key + ':', value);
+            }
         });
     </script>
 }

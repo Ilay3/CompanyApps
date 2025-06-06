@@ -22,6 +22,52 @@ namespace CompanyApp.Application.Services
             _mapper = mapper;
         }
 
+        public async Task DeleteServiceRequestAsync(int id)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                Console.WriteLine($"[DEBUG] Удаление заявки ID: {id}");
+
+                var request = await _context.ServiceRequests
+                    .Include(sr => sr.StatusHistories)
+                    .Include(sr => sr.Comments)
+                    .FirstOrDefaultAsync(sr => sr.Id == id);
+
+                if (request == null)
+                {
+                    throw new Exception("Заявка не найдена");
+                }
+
+                // Удаляем связанные записи
+                if (request.StatusHistories != null)
+                {
+                    _context.ServiceRequestStatusHistories.RemoveRange(request.StatusHistories);
+                }
+
+                if (request.Comments != null)
+                {
+                    _context.ServiceRequestComments.RemoveRange(request.Comments);
+                }
+
+                // Удаляем саму заявку
+                _context.ServiceRequests.Remove(request);
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                Console.WriteLine($"[DEBUG] Заявка ID: {id} успешно удалена");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] Ошибка при удалении заявки: {ex.Message}");
+                await transaction.RollbackAsync();
+                throw new Exception($"Ошибка при удалении заявки: {ex.Message}", ex);
+            }
+        }
+
+
         public async Task<IEnumerable<ServiceRequestDto>> GetAllServiceRequestsAsync()
         {
             try
@@ -176,41 +222,90 @@ namespace CompanyApp.Application.Services
 
         public async Task UpdateServiceRequestStatusAsync(UpdateServiceRequestStatusDto dto, string userId)
         {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
             try
             {
+                Console.WriteLine($"[DEBUG] Начало обновления статуса заявки ID: {dto.ServiceRequestId}");
+                Console.WriteLine($"[DEBUG] Новый статус: {dto.NewStatus}");
+                Console.WriteLine($"[DEBUG] Пользователь: {userId}");
+
+                // ИСПРАВЛЕНИЕ: Загружаем заявку с отслеживанием изменений
                 var request = await _context.ServiceRequests
                     .FirstOrDefaultAsync(sr => sr.Id == dto.ServiceRequestId);
 
                 if (request == null)
-                    throw new Exception("Заявка не найдена");
-
-                var oldStatus = request.Status;
-
-                // Обновляем статус заявки
-                request.Status = dto.NewStatus;
-
-                if (dto.NewStatus == "Resolved" || dto.NewStatus == "Closed")
                 {
-                    request.ResolvedDate = DateTime.Now;
+                    Console.WriteLine($"[ERROR] Заявка с ID {dto.ServiceRequestId} не найдена");
+                    throw new Exception("Заявка не найдена");
                 }
 
-                // Создаем запись в истории
+                Console.WriteLine($"[DEBUG] Заявка найдена. Текущий статус: {request.Status}");
+
+                var oldStatus = request.Status ?? string.Empty;
+                var newStatus = dto.NewStatus ?? string.Empty;
+
+                // ИСПРАВЛЕНИЕ: Явно изменяем статус и помечаем entity как Modified
+                request.Status = newStatus;
+
+                // Устанавливаем дату решения для завершенных заявок
+                if (newStatus == "Resolved" || newStatus == "Closed")
+                {
+                    request.ResolvedDate = DateTime.Now;
+                    Console.WriteLine($"[DEBUG] Установлена дата решения: {request.ResolvedDate}");
+                }
+
+                // ИСПРАВЛЕНИЕ: Явно помечаем сущность как измененную
+                _context.Entry(request).State = EntityState.Modified;
+                Console.WriteLine($"[DEBUG] Entity state установлен в Modified");
+
+                // Создаем запись в истории статусов
                 var statusHistory = new ServiceRequestStatusHistory
                 {
                     ServiceRequestId = request.Id,
                     OldStatus = oldStatus,
-                    NewStatus = dto.NewStatus,
-                    Reason = dto.Reason,
-                    Resolution = dto.Resolution,
+                    NewStatus = newStatus,
+                    Reason = dto.Reason ?? string.Empty,
+                    Resolution = dto.Resolution ?? string.Empty,
                     ChangedDate = DateTime.Now,
                     ChangedByUserId = userId
                 };
 
+                Console.WriteLine($"[DEBUG] Создание записи в истории");
                 _context.ServiceRequestStatusHistories.Add(statusHistory);
-                await _context.SaveChangesAsync();
+
+                // Сохраняем все изменения
+                Console.WriteLine($"[DEBUG] Сохранение изменений...");
+                var result = await _context.SaveChangesAsync();
+                Console.WriteLine($"[DEBUG] Сохранено изменений: {result}");
+
+                // Подтверждаем транзакцию
+                await transaction.CommitAsync();
+                Console.WriteLine($"[DEBUG] Транзакция успешно завершена");
+
+                // Дополнительная проверка: загружаем заявку заново для подтверждения
+                var updatedRequest = await _context.ServiceRequests
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(sr => sr.Id == dto.ServiceRequestId);
+
+                Console.WriteLine($"[DEBUG] Проверка: статус после сохранения = {updatedRequest?.Status}");
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"[ERROR] Ошибка при обновлении статуса заявки: {ex.Message}");
+                Console.WriteLine($"[ERROR] StackTrace: {ex.StackTrace}");
+
+                // Откатываем транзакцию при ошибке
+                try
+                {
+                    await transaction.RollbackAsync();
+                    Console.WriteLine($"[DEBUG] Транзакция откачена");
+                }
+                catch (Exception rollbackEx)
+                {
+                    Console.WriteLine($"[ERROR] Ошибка при откате транзакции: {rollbackEx.Message}");
+                }
+
                 throw new Exception($"Ошибка при обновлении статуса заявки: {ex.Message}", ex);
             }
         }

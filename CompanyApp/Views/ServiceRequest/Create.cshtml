@@ -4,12 +4,24 @@
     ViewData["Title"] = "Создание заявки";
 }
 
+
+
 <div class="container mt-4">
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card shadow-sm border-0 rounded-3">
                 <div class="card-body">
                     <h2 class="card-title mb-4" style="color: #158e3a;">Создание заявки на обслуживание</h2>
+
+                    <!-- ДОБАВЛЯЕМ ОТОБРАЖЕНИЕ ОШИБОК -->
+                    @if (TempData["Error"] != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            @TempData["Error"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
 
                     <form asp-action="Create" method="post">
                         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
@@ -91,6 +103,15 @@
                 equipmentSection.style.display = 'block';
             } else {
                 equipmentSection.style.display = 'none';
+            }
+        });
+        
+        // Показываем секцию если уже выбран тип при загрузке (например, при ошибке валидации)
+        document.addEventListener('DOMContentLoaded', function() {
+            var requestType = document.getElementById('RequestType').value;
+            var equipmentSection = document.getElementById('equipmentSection');
+            if (requestType === 'Computer' || requestType === 'Equipment') {
+                equipmentSection.style.display = 'block';
             }
         });
     </script>

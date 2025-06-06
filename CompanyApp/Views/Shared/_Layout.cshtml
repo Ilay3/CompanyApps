@@ -260,7 +260,12 @@
             });
         });
     </script>
-
+    <script>
+        // Автоматически скрываем алерты через 5 секунд
+        setTimeout(function() {
+            $('.alert').fadeOut('slow');
+        }, 5000);
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

@@ -30,6 +30,20 @@
                                             <i class="bi bi-arrow-left-right me-2"></i>Передать
                                         </a>
                                     </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <form asp-controller="Computer" asp-action="Delete"
+                                              asp-route-id="@Model.Id"
+                                              asp-route-departmentId="@Model.Employee?.DepartmentId"
+                                              method="post" style="margin: 0;">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="dropdown-item text-danger"
+                                                    onclick="return confirm('Вы уверены, что хотите удалить этот компьютер?')">
+                                                <i class="bi bi-trash me-2"></i>Удалить
+                                            </button>
+                                        </form>
+                                    </li>
+
                                 </ul>
                             </div>
                         </div>

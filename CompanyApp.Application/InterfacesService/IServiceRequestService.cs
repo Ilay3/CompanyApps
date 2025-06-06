@@ -17,5 +17,8 @@ namespace CompanyApp.Application.InterfacesService
         Task<IEnumerable<ServiceRequestDto>> GetServiceRequestsByStatusAsync(string status);
         Task<IEnumerable<ServiceRequestDto>> GetServiceRequestsByComputerIdAsync(int computerId);
         Task<IEnumerable<ServiceRequestDto>> GetServiceRequestsByEquipmentIdAsync(int equipmentId);
+        Task DeleteServiceRequestAsync(int id);
+
+
     }
 }

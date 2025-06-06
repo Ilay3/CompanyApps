@@ -46,6 +46,12 @@ namespace CompanyApp.Infrastructure.Repositories
         {
             return await _context.Equipments.FindAsync(id);
         }
+        public async Task<IEnumerable<Equipment>> GetAllEquipmentsAsync()
+        {
+            return await _context.Equipments
+                .Include(e => e.Department)
+                .ToListAsync();
+        }
 
     }
 

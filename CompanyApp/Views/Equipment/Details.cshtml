@@ -1,122 +1,66 @@
-﻿@model CompanyApp.Application.DTOs.EquipmentDto
+﻿@model CompanyApp.Application.DTOs.CRUDEquipmentDto
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-2"></i>
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
 
-@{
-    ViewData["Title"] = "Детали оборудования";
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["Warning"] != null)
+{
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-circle me-2"></i>
+        @TempData["Warning"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
 }
 
 <div class="container mt-4">
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <div class="card shadow-sm border-0 rounded-3">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h2>Детали оборудования</h2>
+                        <div class="btn-group">
+                            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
+                                <i class="bi bi-pencil me-1"></i> Редактировать
+                            </a>
+                            <!-- ИСПРАВЛЕННАЯ ФОРМА УДАЛЕНИЯ ОБОРУДОВАНИЯ -->
+                            <form action="/Equipment/Delete/@Model.Id" method="post" style="display: inline;">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-danger"
+                                        onclick="return confirm('Вы уверены, что хотите удалить это оборудование?')">
+                                    <i class="bi bi-trash me-1"></i> Удалить
+                                </button>
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
                 <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h2 class="card-title" style="color: #158e3a;">Детали оборудования</h2>
-                        <div>
-                            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary">
-                                <i class="bi bi-pencil"></i> Редактировать
-                            </a>
-                            <a asp-controller="Maintenance" asp-action="Create" asp-route-equipmentId="@Model.Id" class="btn btn-outline-success">
-                                <i class="bi bi-tools"></i> Создать ТО
-                            </a>
-                            <a asp-controller="ServiceRequest" asp-action="Create" asp-route-equipmentId="@Model.Id" class="btn btn-outline-warning">
-                                <i class="bi bi-clipboard-check"></i> Создать заявку
-                            </a>
-                        </div>
-                    </div>
+                    <!-- Содержимое страницы деталей -->
+                    <dl class="row">
+                        <dt class="col-sm-3">Тип:</dt>
+                        <dd class="col-sm-9">@Model.Type</dd>
 
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="card bg-light mb-3">
-                                <div class="card-body">
-                                    <h5 class="card-title">Основная информация</h5>
-                                    <table class="table table-borderless">
-                                        <tbody>
-                                            <tr>
-                                                <th style="width: 40%;">Тип:</th>
-                                                <td>@Model.Type</td>
-                                            </tr>
-                                            <tr>
-                                                <th>Модель:</th>
-                                                <td>@Model.Model</td>
-                                            </tr>
-                                            <tr>
-                                                <th>ID:</th>
-                                                <td>@Model.Id</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
+                        <dt class="col-sm-3">Модель:</dt>
+                        <dd class="col-sm-9">@Model.Model</dd>
 
-                        <div class="col-md-6">
-                            <div class="card bg-light mb-3">
-                                <div class="card-body">
-                                    <h5 class="card-title">Быстрые действия</h5>
-                                    <div class="d-grid gap-2">
-                                        <a asp-controller="Maintenance" asp-action="ForEquipment" asp-route-id="@Model.Id" class="btn btn-outline-primary">
-                                            <i class="bi bi-wrench"></i> История обслуживания
-                                        </a>
-                                        <a asp-controller="ServiceRequest" asp-action="Index" class="btn btn-outline-info">
-                                            <i class="bi bi-list-check"></i> Заявки по оборудованию
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
-                        <button type="button" class="btn btn-danger" onclick="confirmDelete(@Model.Id)">
-                            <i class="bi bi-trash"></i> Удалить
-                        </button>
-                        <a onclick="history.back()" class="btn btn-secondary" style="cursor: pointer;">
-                            <i class="bi bi-arrow-left"></i> Назад
-                        </a>
-                    </div>
+                    </dl>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-@section Scripts {
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        function confirmDelete(id) {
-            Swal.fire({
-                title: 'Вы уверены?',
-                text: "Это удалит оборудование и все связанные записи!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Да, удалить!',
-                cancelButtonText: 'Отмена'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Создаем форму для отправки POST запроса
-                    var form = document.createElement('form');
-                    form.method = 'POST';
-                    form.action = '@Url.Action("Delete", "Equipment")';
-
-                    var idInput = document.createElement('input');
-                    idInput.type = 'hidden';
-                    idInput.name = 'id';
-                    idInput.value = id;
-
-                    var tokenInput = document.createElement('input');
-                    tokenInput.type = 'hidden';
-                    tokenInput.name = '__RequestVerificationToken';
-                    tokenInput.value = document.querySelector('input[name="__RequestVerificationToken"]').value;
-
-                    form.appendChild(idInput);
-                    form.appendChild(tokenInput);
-                    document.body.appendChild(form);
-                    form.submit();
-                }
-            });
-        }
-    </script>
-    @Html.AntiForgeryToken()
-}

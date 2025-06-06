@@ -13,5 +13,8 @@ namespace CompanyApp.Core.Interfaces
         Task<EquipmentDto> UpdateEquipmentAsync(CRUDEquipmentDto dto); 
         Task DeleteEquipmentAsync(int id);
         Task<CRUDEquipmentDto> GetEquipmentByIdAsync(int id);
+
+        Task<IEnumerable<CRUDEquipmentDto>> GetAllEquipmentsAsync();
+
     }
 }

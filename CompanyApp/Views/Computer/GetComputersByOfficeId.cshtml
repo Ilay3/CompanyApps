@@ -188,6 +188,14 @@
                                                     <a href="/Computer/Transfer/@computer.Id" class="btn btn-outline-secondary btn-sm" title="Передать">
                                                         <i class="bi bi-arrow-left-right"></i>
                                                     </a>
+                                                    <form action="/Computer/Delete/@computer.Id" method="post" style="display: inline;">
+                                                        @Html.AntiForgeryToken()
+                                                        <input type="hidden" name="departmentId" value="@computer.Employee?.DepartmentId" />
+                                                        <button type="submit" class="btn btn-outline-danger btn-sm" title="Удалить"
+                                                                onclick="return confirm('Вы уверены, что хотите удалить этот компьютер?')">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
+                                                    </form>
                                                 </div>
                                             </td>
                                         </tr>

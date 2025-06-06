@@ -1,4 +1,32 @@
 ﻿@model CompanyApp.Application.DTOs.MaintenanceRecordDto
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-2"></i>
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["Warning"] != null)
+{
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-circle me-2"></i>
+        @TempData["Warning"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<!-- Остальное содержимое страницы... -->
 
 <div class="container mt-4">
     <div class="row justify-content-center">
@@ -215,23 +243,42 @@
                     <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
                         @if (Model.Status != "Completed" && Model.Status != "Cancelled")
                         {
-                            <form asp-action="UpdateStatus" method="post" class="me-2">
-                                <input type="hidden" name="id" value="@Model.Id" />
-                                <input type="hidden" name="status" value="Completed" />
-                                <button type="submit" class="btn btn-success">
+                            <!-- ИСПРАВЛЕННАЯ ФОРМА для завершения -->
+                            <form asp-action="MarkAsCompleted" asp-route-id="@Model.Id" method="post" class="me-2">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-success"
+                                        onclick="return confirm('Пометить техническое обслуживание как завершенное?')">
                                     <i class="bi bi-check-circle"></i> Пометить как завершенное
                                 </button>
                             </form>
 
-                            <form asp-action="UpdateStatus" method="post">
-                                <input type="hidden" name="id" value="@Model.Id" />
-                                <input type="hidden" name="status" value="Cancelled" />
-                                <button type="submit" class="btn btn-danger">
+                            <!-- ИСПРАВЛЕННАЯ ФОРМА для отмены -->
+                            <form asp-action="MarkAsCancelled" asp-route-id="@Model.Id" method="post">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-danger"
+                                        onclick="return confirm('Отменить техническое обслуживание?')">
                                     <i class="bi bi-x-circle"></i> Отменить
                                 </button>
                             </form>
                         }
+                        else
+                        {
+                            <!-- Если статус уже Completed или Cancelled, показываем информацию -->
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle me-2"></i>
+                                Техническое обслуживание
+                                @if (Model.Status == "Completed")
+                                {
+                                    <strong>завершено</strong>
+                                }
+                                else
+                                {
+                                    <strong>отменено</strong>
+                                }
+                            </div>
+                        }
                     </div>
+
                 </div>
             </div>
         </div>
